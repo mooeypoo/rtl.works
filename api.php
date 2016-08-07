@@ -16,47 +16,47 @@ $app->get( '[/]', function (Request $request, Response $response) {
 $app->get( '/test[/]', function (Request $request, Response $response) use ( $app ) {
 	// This is a fallback; if the server doesn't support
 	// AllowEncodedSlashes, this is to enable us to use
-	// regular GET parameters in ?url=...&types=... format
+	// regular GET parameters in ?url=...&tests=... format
 	$params = $request->getQueryParams();
 	$url = isset( $params[ 'url' ] ) ? $params[ 'url' ] : null;
-	$types = isset( $params[ 'types' ] ) ? $params[ 'types' ] : 'all';
+	$tests = isset( $params[ 'tests' ] ) ? $params[ 'tests' ] : 'all';
 
 	if ( !$url ) {
 		return $response->getBody()->write( 'Missing a URL' );
 	}
 
-	return getResponseForTests( $response, $url, $types );
+	return getResponseForTests( $response, $url, $tests );
 } );
 
-$app->get( '/test/{url}[/[{types}]]', function (Request $request, Response $response) {
+$app->get( '/test/{url}[/[{tests}]]', function (Request $request, Response $response) {
 
 	// NOTE: If you're using apache server, the directive
 	// "AllowEncodedSlashes On" must be enabled to this
 	// virtual host (this directive is not inherited)
 	// see https://httpd.apache.org/docs/2.4/mod/core.html#allowencodedslashes
 	$url = $request->getAttribute( 'url' );
-	$types = $request->getAttribute( 'types' );
+	$tests = $request->getAttribute( 'tests' );
 
 	if ( !$url ) {
 		// This is a fallback; if the server doesn't support
 		// AllowEncodedSlashes, this is to enable us to use
-		// regular GET parameters in ?url=...&types=... format
+		// regular GET parameters in ?url=...&tests=... format
 		$params = $request->getQueryParams();
 		$url = isset( $params[ 'url' ] ) ? $params[ 'url' ] : null;
-		$types = isset( $params[ 'types' ] ) ? $params[ 'types' ] : 'all';
+		$tests = isset( $params[ 'tests' ] ) ? $params[ 'tests' ] : 'all';
 
 		if ( !$url ) {
 			return $response->getBody()->write( 'Missing parameter' );
 		}
 	}
 
-	return getResponseForTests( $response, $url, $types );
+	return getResponseForTests( $response, $url, $tests );
 
 } );
 
 $app->run();
 
-function getResponseForTests( &$response, $url, $types ) {
+function getResponseForTests( &$response, $url, $tests ) {
 	$proxy = new RTLWORKS\Proxy();
 	$pageContents = $proxy->fetch( $url );
 	$contentParser = new RTLWORKS\HTMLParser( $pageContents );
@@ -69,7 +69,7 @@ function getResponseForTests( &$response, $url, $types ) {
 
 	$testSuite = new RTLWORKS\TestSuite( $url, $contentParser, $cssContents );
 
-	$testSuite->runTests( explode( ',', $types ) );
+	$testSuite->runTests( explode( ',', $tests ) );
 
 	$result = $testSuite->getAnalysisResult();
 
