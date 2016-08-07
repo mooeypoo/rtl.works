@@ -21,6 +21,12 @@ class Proxy {
 
 	}
 
+	/**
+	 * Fetch the given URL.
+	 *
+	 * @param string $url URL to fetch
+	 * @return string The contents of the page.
+	 */
 	public function fetch( $url ) {
 		// Store the parsed url
 		$this->parsedUrl = parse_url( $url );
@@ -35,6 +41,11 @@ class Proxy {
 		return $response;
 	}
 
+	/**
+	 * Get the parsed URL pieces for this page.
+	 *
+	 * @return array Parsed url
+	 */
 	public function getParsedUrl() {
 		return $this->parsedUrl;
 	}
@@ -50,6 +61,9 @@ class Proxy {
 		curl_setopt( $this->curl, CURLOPT_URL, $url );
 	}
 
+	/**
+	 * Close the curl connection and reset.
+	 */
 	private function closeConnection() {
 		curl_close( $this->curl );
 		$this->curl = null;

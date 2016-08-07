@@ -33,53 +33,9 @@ $app->get( '/test/{url}[/[{types}]]', function (Request $request, Response $resp
 	}
 
 	$testSuite = createTestSuite( $url );
-
-	$errors = array();
-	$tests = array();
-
-	if ( empty( $types ) || $types === 'all' ) {
-		// Run all
-		$testSuite->dirAttrTest();
-		$testSuite->cssFloatTest();
-		$testSuite->cssDirectionTest();
-		$testSuite->cssPositioningTest();
-
-		$tests = array(
-			'dir_attr',
-			'css_float',
-			'css_direction',
-			'css_pos'
-		);
-	} else {
-		$testTypes = explode( ',', $types );
-		foreach ( $testTypes as $type ) {
-			switch ( $type ) {
-				case 'dir_attr':
-					$testSuite->dirAttrTest();
-					break;
-				case 'css_float':
-					$testSuite->cssFloatTest();
-					break;
-				case 'css_direction':
-					$testSuite->cssDirectionTest();
-					break;
-				case 'css_pos':
-					$testSuite->cssPositioningTest();
-					break;
-				default:
-					$errors[] = 'Test type "' . $type . '" was not recognized.';
-					break;
-			}
-			$tests[] = $type;
-		}
-	}
+	$testSuite->runTests( explode( ',', $types ) );
 
 	$result = $testSuite->getAnalysisResult();
-	$result[ 'date' ] = date( 'Y-m-d H:i:s' );
-	$result[ 'test_list' ] = $tests;
-	if ( count( $errors ) ) {
-		$result[ 'errors' ] = $errors;
-	}
 
 	return $response
 		->withHeader( 'Content-type', 'application/json' )

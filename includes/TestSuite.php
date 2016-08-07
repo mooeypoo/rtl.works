@@ -2,10 +2,19 @@
 
 namespace RTLWORKS;
 
+/**
+ * A test suite for RTL support in web pages.
+ */
 class TestSuite {
 	private $contentParser;
 	private $cssFiles;
 	private $analysis = array();
+	private $availableTests = array(
+		'dir_attr',
+		'css_float',
+		'css_direction',
+		'css_pos',
+	);
 
 	function __construct( $url, $parsedContent, $cssFiles = array() ) {
 		$this->contentParser = $parsedContent;
@@ -15,15 +24,78 @@ class TestSuite {
 		);
 	}
 
+	/**
+	 * Get the full analysis result object.
+	 *
+	 * @return array Analysis result
+	 */
 	public function getAnalysisResult() {
 		return $this->analysis;
+	}
+
+	/**
+	 * Run the requested tests.
+	 *
+	 * @param [string|array] $testTypes The tests to run.
+	 *  If not given, all tests will run.
+	 */
+	public function runTests( $testTypes ) {
+		if ( !is_array( $testTypes ) ) {
+			$testTypes = array( $testTypes );
+		}
+
+		$errors = array();
+		$this->tests = array();
+
+		if ( empty( $testTypes[ 0 ] ) || $testTypes[ 0 ] === 'all' ) {
+			// Run all
+			$this->dirAttrTest();
+			$this->cssFloatTest();
+			$this->cssDirectionTest();
+			$this->cssPositioningTest();
+
+			$tests = array(
+				'dir_attr',
+				'css_float',
+				'css_direction',
+				'css_pos'
+			);
+		} else {
+			foreach ( $testTypes as $type ) {
+				switch ( $type ) {
+					case 'dir_attr':
+						$this->dirAttrTest();
+						break;
+					case 'css_float':
+						$this->cssFloatTest();
+						break;
+					case 'css_direction':
+						$this->cssDirectionTest();
+						break;
+					case 'css_pos':
+						$this->cssPositioningTest();
+						break;
+					default:
+						$this->errors[] = 'Test type "' . $type . '" was not recognized.';
+						break;
+				}
+				$tests[] = $type;
+			}
+		}
+
+		// Log and output results
+		$this->analysis[ 'date' ] = date( 'Y-m-d H:i:s' );
+		$this->analysis[ 'test_list' ] = $tests;
+		if ( count( $errors ) ) {
+			$this->analysis[ 'errors' ] = $errors;
+		}
 	}
 
 	/**
 	 * Test whether there are dir attributes set on
 	 * the content related nodes in the document.
 	 */
-	public function dirAttrTest() {
+	protected function dirAttrTest() {
 		$content_tags = array( 'html', 'body', 'div', 'span', 'p', 'ul' );
 
 		// Look for dir tags in the content tags
@@ -42,7 +114,7 @@ class TestSuite {
 	 * Test whether there are float: rules in
 	 * the CSS files
 	 */
-	public function cssFloatTest() {
+	protected function cssFloatTest() {
 		$this->cssTermExistenceTest( 'float', 'css_float', true );
 	}
 
@@ -50,7 +122,7 @@ class TestSuite {
 	 * Test whether there are direction: rules in
 	 * the CSS files
 	 */
-	public function cssDirectionTest() {
+	protected function cssDirectionTest() {
 		$this->cssTermExistenceTest( 'direction', 'css_direction', true );
 	}
 
@@ -58,7 +130,7 @@ class TestSuite {
 	 * Test whether there are literal positioning values
 	 * within the css file.
 	 */
-	public function cssPositioningTest() {
+	protected function cssPositioningTest() {
 		$this->cssTermExistenceTest( 'right', 'css_pos_right' );
 		$this->cssTermExistenceTest( 'left', 'css_pos_left' );
 	}
@@ -67,7 +139,7 @@ class TestSuite {
 	 * Test whether a term exists in any of the CSS files
 	 * and log the results.
 	 *
-	 * @param [type] $term Term to look for
+	 * @param string $term Term to look for
 	 * @param string [$testName] Test name. If not given, defaults to
 	 *  the attribute name prefixed with 'css_'
 	 * @param boolean $isAttribute Set the term as an attribute; adds

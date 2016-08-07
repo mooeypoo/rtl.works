@@ -16,6 +16,15 @@ class HTMLParser {
 		$this->xpath = new \DOMXPath( $this->doc );
 	}
 
+	/**
+	 * Look for stylesheets and collect their URLs
+	 * for fetching.
+	 *
+	 * @param [type] $parsedUrl Parsed URL pieces
+	 *  of the overall site
+	 * @return [type] An array of urls for the
+	 *  stylesheets
+	 */
 	public function getCSSFiles( $parsedUrl ) {
 		$stylesheetNodes = $this->xpath->query( '//link[@rel="stylesheet"]' );
 
@@ -41,6 +50,15 @@ class HTMLParser {
 		return $cssurls;
 	}
 
+	/**
+	 * Collect the values of a specific attribute for
+	 * a given tag.
+	 *
+	 * @param string $tag Requested tag name
+	 * @param string $attr Requested attribute name
+	 * @return array An array of all values that were
+	 *  found for the given attribute in the given tags.
+	 */
 	public function getAttributeForTags( $tag, $attr ) {
 		$values = array();
 
@@ -55,17 +73,23 @@ class HTMLParser {
 		return $values;
 	}
 
+	/**
+	 * Check whether there was an error parsing
+	 * the page.
+	 *
+	 * @return boolean
+	 */
 	public function isError() {
 		return $this->error;
 	}
 
+	/**
+	 * Set the error state for parsing this page.
+	 *
+	 * @param boolean $isError There is an error
+	 *  parsing this page.
+	 */
 	private function setErrorState( $isError ) {
 		$this->error = (bool) $isError;
-	}
-
-	private function reset() {
-		$this->setErrorState( false );
-		$this->doc = new \DomDocument();
-		$this->xpath = null;
 	}
 }
