@@ -1,0 +1,22 @@
+{
+	"name": "rtl.works",
+	"type": "project",
+	"homepage": "http://rtl.works",
+	"license": "LGPL-3.0+",
+	"authors": [
+		{
+			"name": "Moriel Schottlender",
+			"email": "mooeypoo@gmail.com",
+			"homepage": "http://moriel.smarterthanthat.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/mooeypoo/rtl.works/issues"
+	},
+	"autoload": {
+		"psr-4": {
+			"RTLWORKS\\": "includes/"
+		}
+	}
+}
