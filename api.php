@@ -13,9 +13,19 @@ $app->get( '[/]', function (Request $request, Response $response) {
 } );
 
 
-$app->get( '/test[/]', function (Request $request, Response $response) {
-	return $response
-		->getBody()->write( 'Missing a URL' );
+$app->get( '/test[/]', function (Request $request, Response $response) use ( $app ) {
+	// This is a fallback; if the server doesn't support
+	// AllowEncodedSlashes, this is to enable us to use
+	// regular GET parameters in ?url=...&types=... format
+	$params = $request->getQueryParams();
+	$url = isset( $params[ 'url' ] ) ? $params[ 'url' ] : null;
+	$types = isset( $params[ 'types' ] ) ? $params[ 'types' ] : 'all';
+
+	if ( !$url ) {
+		return $response->getBody()->write( 'Missing a URL' );
+	}
+
+	return getResponseForTests( $response, $url, $types );
 } );
 
 $app->get( '/test/{url}[/[{types}]]', function (Request $request, Response $response) {
@@ -27,24 +37,26 @@ $app->get( '/test/{url}[/[{types}]]', function (Request $request, Response $resp
 	$url = $request->getAttribute( 'url' );
 	$types = $request->getAttribute( 'types' );
 
-
 	if ( !$url ) {
-		return $response->getBody()->write( 'Missing parameter' );
+		// This is a fallback; if the server doesn't support
+		// AllowEncodedSlashes, this is to enable us to use
+		// regular GET parameters in ?url=...&types=... format
+		$params = $request->getQueryParams();
+		$url = isset( $params[ 'url' ] ) ? $params[ 'url' ] : null;
+		$types = isset( $params[ 'types' ] ) ? $params[ 'types' ] : 'all';
+
+		if ( !$url ) {
+			return $response->getBody()->write( 'Missing parameter' );
+		}
 	}
 
-	$testSuite = createTestSuite( $url );
-	$testSuite->runTests( explode( ',', $types ) );
+	return getResponseForTests( $response, $url, $types );
 
-	$result = $testSuite->getAnalysisResult();
-
-	return $response
-		->withHeader( 'Content-type', 'application/json' )
-		->withJson( $result );
 } );
 
 $app->run();
 
-function createTestSuite( $url ) {
+function getResponseForTests( &$response, $url, $types ) {
 	$proxy = new RTLWORKS\Proxy();
 	$pageContents = $proxy->fetch( $url );
 	$contentParser = new RTLWORKS\HTMLParser( $pageContents );
@@ -55,5 +67,13 @@ function createTestSuite( $url ) {
 		$cssContents[ $file ] = $proxy->fetch( $file );
 	}
 
-	return new RTLWORKS\TestSuite( $url, $contentParser, $cssContents );
+	$testSuite = new RTLWORKS\TestSuite( $url, $contentParser, $cssContents );
+
+	$testSuite->runTests( explode( ',', $types ) );
+
+	$result = $testSuite->getAnalysisResult();
+
+	return $response
+		->withHeader( 'Content-type', 'application/json' )
+		->withJson( $result );
 }
