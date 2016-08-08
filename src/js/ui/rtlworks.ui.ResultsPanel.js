@@ -1,61 +1,3 @@
-var rtlworks = {};
-
-rtlworks.util = {
-	/**
-	 * Set an element to a disabled state in bootstrap
-	 *
-	 * @param {jQuery} $element jQuery element
-	 * @param {boolean} isDisabled The element is disabled
-	 */
-	setDisabled: function ( $element, isDisabled ) {
-		$element
-			.toggleClass( 'disabled', isDisabled );
-
-		if ( isDisabled ) {
-			$element.attr( 'disabled', 'disabled' );
-		} else {
-			$element.removeAttr( 'disabled' );
-		}
-	}
-};
-
-rtlworks.network = {
-	/**
-	 * Checks whether the given URL is valid.
-	 * Taken from https://github.com/jzaefferer/jquery-validation/blob/f37c2d8131ca0e3c2af0093f6fd9d2c40c282663/src/core.js#L1159
-	 *
-	 * @method
-	 * @param {string} url Given URL
-	 * @return {boolean} URL is valid
-	 */
-	isUrlValid: function ( url ) {
-		return /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test( url );
-	},
-	/**
-	 * Send the URL to the API for a test suite result
-	 *
-	 * @method
-	 * @param {string} url Valid URL
-	 * @param {string|string[]} [tests] A string for a test name or an
-	 *  array of test names
-	 * @return {jQuery.Promise} Promise that is resolved when the
-	 *  server returns with the reply analysis.
-	 */
-	runTests: function ( url, tests ) {
-		tests = Array.isArray( tests ) ? tests : [ tests ];
-		return $.ajax( {
-			url: RTLWORKS_BASE_URL + 'api.php/test/', // Local API endpoint
-			dataType: 'json',
-			data: {
-				url: url,
-				tests: tests.join( ',' )
-			}
-		} );
-	}
-};
-
-rtlworks.ui = {};
-
 /**
  * Bootstrap panel for displaying the results
  *
@@ -188,7 +130,15 @@ rtlworks.ui.ResultsPanel = function ( results, config ) {
 	this.$element.append( $table );
 };
 
-rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, description ) {
+/**
+ * Get a full table row to append
+ *
+ * @param {boolean} isOkay The test passed
+ * @param {string} name Title or name of the test
+ * @param {string} description Details of the test
+ * @return {jQuery} Table row
+ */
+rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, details ) {
 	return $( '<tr>' )
 		.addClass( 'alert-' + ( isOkay ? 'success' : 'warning' ) )
 		.append(
@@ -201,46 +151,19 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, descri
 			$( '<td>' )
 				.append( name ),
 			$( '<td>' )
-				.append( description )
+				.append( details )
+			// TODO: Append an 'explanation' / 'help' icon
+			// with an actual explanation about what's going on
+			// with the results
 		);
 };
 
+/**
+ * Help translate a boolean into language. This should really be using i18n message.
+ *
+ * @param {boolean} condition Condition to test
+ * @return {string} Yes or no strings
+ */
 rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 	return condition ? 'yes' : 'no';
 };
-
-( function ( $ ) {
-	'use strict';
-	$( document ).ready( function () {
-		var $button = $( '#rtlworks-analyze-button' ),
-			$input = $( '#rtlworks-url-input' ),
-			$resultDiv = $( '#rtlworks-result' );
-
-		$button.on( 'click', function () {
-			var url = $input.val();
-			if ( !rtlworks.network.isUrlValid( url ) ) {
-				console.log( 'Bad url: ' + url );
-				return false;
-			}
-
-			rtlworks.util.setDisabled( $button, true );
-			rtlworks.util.setDisabled( $input, true );
-			$resultDiv
-				.slideUp()
-				.empty();
-			rtlworks.network.runTests( url, 'all' )
-				.then( function ( results ) {
-					// Show result
-					var panel = new rtlworks.ui.ResultsPanel( results );
-console.log( results );
-					$resultDiv
-						.append( panel.$element )
-						.slideDown();
-				} )
-				.then( function () {
-					rtlworks.util.setDisabled( $button, false );
-					rtlworks.util.setDisabled( $input, false );
-				} );
-		} );
-	} );
-} )( jQuery );

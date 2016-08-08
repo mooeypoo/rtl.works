@@ -14,6 +14,7 @@ class TestSuite {
 		'css_float',
 		'css_direction',
 		'css_pos',
+		'css_pos_absolute',
 	);
 
 	function __construct( $url, $parsedContent, $cssFiles = array() ) {
@@ -53,12 +54,14 @@ class TestSuite {
 			$this->cssFloatTest();
 			$this->cssDirectionTest();
 			$this->cssPositioningTest();
+			$this->cssAbsolutePositioning();
 
 			$tests = array(
 				'dir_attr',
 				'css_float',
 				'css_direction',
-				'css_pos'
+				'css_pos',
+				'css_pos_absolute'
 			);
 		} else {
 			foreach ( $testTypes as $type ) {
@@ -74,6 +77,9 @@ class TestSuite {
 						break;
 					case 'css_pos':
 						$this->cssPositioningTest();
+						break;
+					case 'css_pos_absolute':
+						$this->cssAbsolutePositioning();
 						break;
 					default:
 						$this->errors[] = 'Test type "' . $type . '" was not recognized.';
@@ -115,7 +121,7 @@ class TestSuite {
 	 * the CSS files
 	 */
 	protected function cssFloatTest() {
-		$this->cssTermExistenceTest( 'float', 'css_float', true );
+		return $this->cssTermExistenceTest( 'float', 'css_float', true );
 	}
 
 	/**
@@ -123,7 +129,7 @@ class TestSuite {
 	 * the CSS files
 	 */
 	protected function cssDirectionTest() {
-		$this->cssTermExistenceTest( 'direction', 'css_direction', true );
+		return $this->cssTermExistenceTest( 'direction', 'css_direction', true );
 	}
 
 	/**
@@ -131,8 +137,16 @@ class TestSuite {
 	 * within the css file.
 	 */
 	protected function cssPositioningTest() {
-		$this->cssTermExistenceTest( 'right', 'css_pos_right' );
-		$this->cssTermExistenceTest( 'left', 'css_pos_left' );
+		$countRight = $this->cssTermExistenceTest( 'right', 'css_pos_right' );
+		$countLeft = $this->cssTermExistenceTest( 'left', 'css_pos_left' );
+	}
+
+	/**
+	 * Test whether there are literal positioning values
+	 * within the css file.
+	 */
+	protected function cssAbsolutePositioning() {
+		$countRight = $this->cssTermExistenceTest( 'absolute', 'css_pos_absolute' );
 	}
 
 	/**
@@ -170,5 +184,7 @@ class TestSuite {
 		}
 
 		$this->analysis[ 'analysis' ][ $testName ] = $count;
+
+		return $count;
 	}
 }

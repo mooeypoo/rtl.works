@@ -25,6 +25,8 @@ module.exports = function ( grunt ) {
 					'src/js/rtlworks.js',
 					'src/js/rtlworks.util.js',
 					'src/js/rtlworks.network.js',
+					'src/js/rtlworks.ui.js',
+					'src/js/ui/rtlworks.ui.ResultsPanel.js',
 					'src/js/rtlworks.init.js'
 				]
 			}

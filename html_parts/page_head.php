@@ -1,5 +1,5 @@
 <?php
-$baseurl = $_SERVER['REQUEST_URI'];
+$baseurl =$currentPage === 'test' ? $_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] ) . '/';
 
 $menuItems = array(
 	'test' => array(

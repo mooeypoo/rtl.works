@@ -1,3 +1,8 @@
 body {
   background-color: #113a53;
 }
+.rtlworks-ui-ResultsPanel-table,
+.rtlworks-ui-ResultsPanel-body {
+  color: #666;
+  text-shadow: none;
+}

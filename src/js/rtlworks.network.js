@@ -29,11 +29,6 @@ rtlworks.network = {
 				url: url,
 				tests: tests.join( ',' )
 			}
-		} )
-		.then(
-			function ( response ) {
-				console.log( response );
-			}
-		);
+		} );
 	}
 };
