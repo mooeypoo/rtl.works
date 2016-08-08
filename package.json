@@ -1,0 +1,22 @@
+{
+  "name": "rtl.works",
+  "private": true,
+  "author": "Moriel Schottlender",
+  "description": "Front-end for rtl.works site",
+  "version": "0.0.1",
+  "license": "GPLv3.0+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mooeypoo/rtl.works"
+  },
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-contrib-concat": "1.0.0",
+    "grunt-contrib-csslint": "1.0.0",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-less": "*",
+    "grunt-cssjanus": "*",
+    "grunt-jscs": "2.8.0",
+    "grunt-banana-checker": "0.5.0"
+ }
+}
