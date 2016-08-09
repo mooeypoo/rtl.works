@@ -11,6 +11,9 @@
 			"role": "Developer"
 		}
 	],
+	"require": {
+		"slim/slim": "^3.0"
+	},
 	"support": {
 		"issues": "https://github.com/mooeypoo/rtl.works/issues"
 	},
