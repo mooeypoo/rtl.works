@@ -41,7 +41,13 @@ class HTMLParser {
 			} else if ( substr( $href, 0, 1 ) === '/' ) {
 				$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . '/' . $href;
 			} else {
-				$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . '/' . $parsedUrl[ 'path' ] . '/' . $href;
+				$link = $parsedUrl[ 'scheme' ] . '://' .
+					$parsedUrl[ 'host' ] . '/' .
+					(
+						isset( $parsedUrl[ 'path' ] ) && !empty( $parsedUrl[ 'path' ] ) ?
+							$parsedUrl[ 'path' ] . '/' : ''
+					) .
+					$href;
 			}
 
 			$cssurls[] = $link;

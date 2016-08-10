@@ -44,7 +44,7 @@ rtlworks.network = {
 	runTests: function ( url, tests ) {
 		tests = Array.isArray( tests ) ? tests : [ tests ];
 		return $.ajax( {
-			url: RTLWORKS_BASE_URL + 'api.php/test/', // Local API endpoint
+			url: 'api.php/test/', // Local API endpoint
 			dataType: 'json',
 			data: {
 				url: url,
