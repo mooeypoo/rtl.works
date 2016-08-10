@@ -49,44 +49,37 @@ class TestSuite {
 		$this->tests = array();
 
 		if ( empty( $testTypes[ 0 ] ) || $testTypes[ 0 ] === 'all' ) {
-			// Run all
-			$this->dirAttrTest();
-			$this->cssFloatTest();
-			$this->cssDirectionTest();
-			$this->cssPositioningTest();
-			$this->cssAbsolutePositioning();
-
-			$tests = array(
+			$testTypes = array(
 				'dir_attr',
 				'css_float',
 				'css_direction',
 				'css_pos',
 				'css_pos_absolute'
 			);
-		} else {
-			foreach ( $testTypes as $type ) {
-				switch ( $type ) {
-					case 'dir_attr':
-						$this->dirAttrTest();
-						break;
-					case 'css_float':
-						$this->cssFloatTest();
-						break;
-					case 'css_direction':
-						$this->cssDirectionTest();
-						break;
-					case 'css_pos':
-						$this->cssPositioningTest();
-						break;
-					case 'css_pos_absolute':
-						$this->cssAbsolutePositioning();
-						break;
-					default:
-						$this->errors[] = 'Test type "' . $type . '" was not recognized.';
-						break;
-				}
-				$tests[] = $type;
+		}
+
+		foreach ( $testTypes as $type ) {
+			switch ( $type ) {
+			case 'dir_attr':
+				$this->dirAttrTest();
+				break;
+			case 'css_float':
+				$this->cssFloatTest();
+				break;
+			case 'css_direction':
+				$this->cssDirectionTest();
+				break;
+			case 'css_pos':
+				$this->cssPositioningTest();
+				break;
+			case 'css_pos_absolute':
+				$this->cssAbsolutePositioning();
+				break;
+			default:
+				$this->errors[] = 'Test type "' . $type . '" was not recognized.';
+				break;
 			}
+			$tests[] = $type;
 		}
 
 		// Log and output results
@@ -142,7 +135,7 @@ class TestSuite {
 	}
 
 	/**
-	 * Test whether there are literal positioning values
+	 * Test whether there are absolute positioning values
 	 * within the css file.
 	 */
 	protected function cssAbsolutePositioning() {
