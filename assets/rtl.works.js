@@ -188,7 +188,15 @@ rtlworks.ui.ResultsPanel = function ( results, config ) {
 	this.$element.append( $table );
 };
 
-rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, description ) {
+/**
+ * Get a full table row to append
+ *
+ * @param {boolean} isOkay The test passed
+ * @param {string} name Title or name of the test
+ * @param {string} description Details of the test
+ * @return {jQuery} Table row
+ */
+rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, details ) {
 	return $( '<tr>' )
 		.addClass( 'alert-' + ( isOkay ? 'success' : 'warning' ) )
 		.append(
@@ -201,10 +209,19 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, descri
 			$( '<td>' )
 				.append( name ),
 			$( '<td>' )
-				.append( description )
+				.append( details )
+			// TODO: Append an 'explanation' / 'help' icon
+			// with an actual explanation about what's going on
+			// with the results
 		);
 };
 
+/**
+ * Help translate a boolean into language. This should really be using i18n message.
+ *
+ * @param {boolean} condition Condition to test
+ * @return {string} Yes or no strings
+ */
 rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 	return condition ? 'yes' : 'no';
 };
@@ -214,28 +231,44 @@ rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 	$( document ).ready( function () {
 		var $button = $( '#rtlworks-analyze-button' ),
 			$input = $( '#rtlworks-url-input' ),
-			$resultDiv = $( '#rtlworks-result' );
+			$resultDiv = $( '#rtlworks-result' ),
+			$loading = $( '#rtlworks-loading' )
+				.addClass( 'rtlworks-spinner' )
+				.hide();
 
 		$button.on( 'click', function () {
 			var url = $input.val();
-			if ( !rtlworks.network.isUrlValid( url ) ) {
-				console.log( 'Bad url: ' + url );
-				return false;
-			}
 
-			rtlworks.util.setDisabled( $button, true );
-			rtlworks.util.setDisabled( $input, true );
 			$resultDiv
 				.slideUp()
 				.empty();
+
+			if ( !rtlworks.network.isUrlValid( url ) ) {
+				$resultDiv
+					.append(
+						$( '<div>' )
+							.addClass( 'alert alert-warning' )
+							.attr( 'role', 'alert' )
+							.text( 'Please provide a valid URL.' )
+						)
+						.slideDown();
+				return false;
+			}
+
+			$loading.show();
+			rtlworks.util.setDisabled( $button, true );
+			rtlworks.util.setDisabled( $input, true );
+
 			rtlworks.network.runTests( url, 'all' )
 				.then( function ( results ) {
 					// Show result
 					var panel = new rtlworks.ui.ResultsPanel( results );
-console.log( results );
+
 					$resultDiv
 						.append( panel.$element )
 						.slideDown();
+
+					$loading.hide();
 				} )
 				.then( function () {
 					rtlworks.util.setDisabled( $button, false );

@@ -1,5 +1,9 @@
 <?php
-$baseurl =$currentPage === 'test' ? $_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] ) . '/';
+$baseurl =$currentPage === 'test' ? $_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] );
+if ( strpos( $baseurl, '/' ) !== strlen( $baseurl ) - 1 ) {
+	// HACK: Add trailing slash only if one doesn't exist.
+	$baseurl .= '/';
+}
 
 $menuItems = array(
 	'test' => array(

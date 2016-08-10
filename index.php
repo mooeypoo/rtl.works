@@ -18,6 +18,7 @@ include_once 'html_parts/page_head.php'
 		<!-- /FORM -->
 		</p>
 
+		<div id="rtlworks-loading"></div>
 		<div id="rtlworks-result"></div>
 	</div>
 <?php

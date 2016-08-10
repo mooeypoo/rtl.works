@@ -126,11 +126,16 @@ body {
  */
 
 .mastfoot {
+  margin-top: 5em;
   color: #999; /* IE8 proofing */
   color: rgba(255,255,255,.5);
   font-size: 0.9em;
 }
 
+.mastfoot a {
+  color: #aeaeae; /* IE8 proofing */
+  color: rgba(200,200,200,.5);
+}
 
 /*
  * Affix and center

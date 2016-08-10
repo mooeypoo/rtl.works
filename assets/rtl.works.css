@@ -1,6 +1,14 @@
 body {
   background-color: #113a53;
 }
+.rtlworks-spinner {
+  background-image: url(images/hourglass.svg );
+  width: 64px;
+  height: 64px;
+  margin-top: 1em;
+  margin-left: auto;
+  margin-right: auto;
+}
 .rtlworks-ui-ResultsPanel-table,
 .rtlworks-ui-ResultsPanel-body {
   color: #666;
