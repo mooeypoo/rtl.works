@@ -1,26 +1,3 @@
-<?php
-$baseurl =$currentPage === 'test' ? $_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] );
-if ( strpos( $baseurl, '/' ) !== strlen( $baseurl ) - 1 ) {
-	// HACK: Add trailing slash only if one doesn't exist.
-	$baseurl .= '/';
-}
-
-$menuItems = array(
-	'test' => array(
-		'url' => $baseurl,
-		'label' => 'Test!'
-	),
-	'explanation' => array(
-		'url' => 'explanation.php',
-		'label' => 'Explanation',
-	),
-	'rtl.wtf' => array(
-		'url' => 'http://rtl.wtf',
-		'label' => 'rtl.wtf'
-	)
-);
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -54,7 +31,7 @@ $menuItems = array(
 		<![endif]-->
 		<script type='text/javascript'>
 			// HACK: Leak the baseurl so the JS can use it
-			var RTLWORKS_BASE_URL = '<?php echo $baseurl; ?>';
+			var RTLWORKS_BASE_URL = '{{ baseurl }}';
 		</script>
 	</head>
 
@@ -68,15 +45,29 @@ $menuItems = array(
 					<div class="masthead clearfix">
 						<div class="inner">
 							<h3 class="masthead-brand">RTL.works</h3>
-							<nav>
-								<ul class="nav masthead-nav">
-<?php
-	foreach ( $menuItems as $item => $data ) {
-		$class = $item === $currentPage ? ' class="active"' : '';
-		echo '<li ' . $class . '><a href="' . $data[ 'url' ] . '">' . $data[ 'label' ] . '</a></li>';
-	}
-?>
-								</ul>
-							</nav>
+							{% include '_menu.html' %}
 						</div>
+						<div class="mastfoot">{% include '_footer.html' %}</div>
 					</div>
+
+					<div class="inner cover">{% block content %}{% endblock %}</div>
+			</div>
+
+		</div>
+
+		<!-- Bootstrap core JavaScript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+		<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="assets/bootstrap/js/ie10-viewport-bug-workaround.js"></script>
+
+		{% if scripts|length > 0 %}
+			{% for script in scripts %}
+				<script src="{{ script }}"></script>
+			{% endfor %}
+		{% endif %}
+	</body>
+</html>

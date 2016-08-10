@@ -1,0 +1,20 @@
+{% extends "base.page.html" %}
+
+{% block content %}
+	<h1 class="cover-heading">Does my site work with Right-to-Left?<a href="explanation.php">*</a></h1>
+	<p></p>
+	<p class="lead centered">
+
+	<!-- FORM -->
+	<div class="input-group">
+		<input type="text" id="rtlworks-url-input" class="form-control" placeholder="http://www.example.com">
+		<span class="input-group-btn">
+			<button id="rtlworks-analyze-button" class="btn btn-primary" type="button">Analyze!</button>
+		</span>
+	</div><!-- /input-group -->
+	<!-- /FORM -->
+	</p>
+
+	<div id="rtlworks-loading"></div>
+	<div id="rtlworks-result"></div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<nav>
+	<ul class="nav masthead-nav">
+	{% for item in menu %}
+		<li {{ item.active ? 'class="active"' : '' }}><a href="{{ item.url }}">{{ item.label }}</a>
+	{% endfor %}
+	</ul>
+</nav>
