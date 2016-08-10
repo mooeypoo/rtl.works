@@ -58,6 +58,7 @@ class Proxy {
 		curl_setopt( $this->curl, CURLOPT_USERAGENT, $this->userAgent );
 		curl_setopt( $this->curl, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $this->curl, CURLOPT_ENCODING, "" );
+		curl_setopt( $this->curl, CURLOPT_FOLLOWLOCATION, true );
 		curl_setopt( $this->curl, CURLOPT_URL, $url );
 	}
 
