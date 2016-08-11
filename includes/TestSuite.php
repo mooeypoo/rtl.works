@@ -9,19 +9,32 @@ class TestSuite {
 	private $contentParser;
 	private $cssFiles;
 	private $analysis = array();
-	private $availableTests = array(
-		'dir_attr',
-		'css_float',
-		'css_direction',
-		'css_pos',
-		'css_pos_absolute',
+	private $twig;
+	private $testsDetails = array(
+		'dir_attr' => array(
+			'intro' => 'Direction tags in the &lt;html&gt; or &lt;body&gt;',
+		),
+		'css_float' => array(
+			'intro' => 'Elements with floating rules.'
+		),
+		'css_direction' => array(
+			'intro' => 'Explicit direction statements for elements in CSS.'
+		),
+		'css_pos' => array(
+			'intro' => 'Explicit positioning of elements (right or left)'
+		),
+		'css_pos_absolute' => array(
+			'intro' => 'Absolutely positioned elements'
+		),
 	);
 
-	function __construct( $url, $parsedContent, $cssFiles = array() ) {
+	function __construct( $twig, $url, $parsedContent, $cssFiles = array() ) {
+		$this->twig = $twig;
 		$this->contentParser = $parsedContent;
 		$this->cssFiles = $cssFiles;
 		$this->analysis = array(
-			'url' => $url
+			'url' => $url,
+			'messages' => array(),
 		);
 	}
 
@@ -80,14 +93,25 @@ class TestSuite {
 				break;
 			}
 			$tests[] = $type;
+
+			// TODO: Make this an optional parameter
+			$this->addTestMessage( $type );
 		}
 
 		// Log and output results
 		$this->analysis[ 'date' ] = date( 'Y-m-d H:i:s' );
 		$this->analysis[ 'test_list' ] = $tests;
+
+		// Errors
 		if ( count( $errors ) ) {
 			$this->analysis[ 'errors' ] = $errors;
 		}
+	}
+
+	protected function addTestMessage( $test ) {
+		$this->analysis[ 'messages' ][ $test ] = $this->testsDetails[ $test ];
+		// Add compiled description
+		$this->analysis[ 'messages' ][ $test ][ 'description' ] = $this->twig->render( 'tests/' . $test .'.html' );
 	}
 
 	/**

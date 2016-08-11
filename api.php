@@ -54,9 +54,11 @@ $app->get( '/test/{url}[/[{tests}]]', function (Request $request, Response $resp
 
 } );
 
+
 $app->run();
 
 function getResponseForTests( &$response, $url, $tests ) {
+
 	$proxy = new RTLWORKS\Proxy();
 	$pageContents = $proxy->fetch( $url );
 	$contentParser = new RTLWORKS\HTMLParser( $pageContents );
@@ -67,7 +69,12 @@ function getResponseForTests( &$response, $url, $tests ) {
 		$cssContents[ $file ] = $proxy->fetch( $file );
 	}
 
-	$testSuite = new RTLWORKS\TestSuite( $url, $contentParser, $cssContents );
+	$twigLoader = new Twig_Loader_Filesystem( __DIR__ . '/templates');
+	$twig = new Twig_Environment( $twigLoader, array(
+	    'cache' => __DIR__ . '/cache',
+	) );
+
+	$testSuite = new RTLWORKS\TestSuite( $twig, $url, $contentParser, $cssContents );
 
 	$testSuite->runTests( explode( ',', $tests ) );
 
