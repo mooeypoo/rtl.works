@@ -24,25 +24,31 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 		.addClass( 'panel panel-' + ( config.type || 'primary' ) )
 		.addClass( 'rtlworks-ui-ResultsPanel' );
 
-	$title = $( '<div>' )
-		.addClass( 'panel-heading' )
+	// Title
+	this.$element
 		.append(
-			$( '<h3>' )
-				.addClass( 'panel-title' )
-				// TODO: Support i18n strings
-				.append( config.title || 'Results for <em>' + this.model.getUrl() + '</em>' )
+			$( '<div>' )
+				.addClass( 'panel-heading' )
+				.append(
+					$( '<h3>' )
+						.addClass( 'panel-title' )
+						// TODO: Support i18n strings
+						.append( config.title || 'Results for <em>' + this.model.getUrl() + '</em>' )
+				)
 		);
 
-	this.$element.append( $title );
+	// Body
+	this.$element
+		.append(
+			$( '<div>' )
+				.addClass( 'panel-body alert-info' )
+				.addClass( 'rtlworks-ui-ResultsPanel-body' )
+				.append(
+					config.body ||
+					'We can\'t really tell. No automated system can... but we <strong>can</strong> give you some pointers!'
+				)
+		);
 
-	if ( config.body ) {
-		$body = $( '<div>' )
-			.addClass( 'panel-body' )
-			.addClass( 'rtlworks-ui-ResultsPanel-body' )
-			.append( config.body );
-
-		this.$element.append( $body );
-	}
 
 	// Build the table
 	Object.keys( this.model.getAllResults() ).forEach( function ( name ) {
@@ -65,13 +71,13 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 			);
 		}
 
-		$table.append(
-			panel.getTableRow(
-				test.status,
-				test.messages,
-				$result.contents()
-			)
-		);
+		panel.getTableRow(
+			$table,
+			name,
+			test.status,
+			test.messages,
+			$result.contents()
+		)
 	} );
 
 	// Append the table
@@ -81,7 +87,7 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 /**
  * Get a full table row to append
  *
- * @param {boolean} status The test status 'ok', 'warning' or 'danger'
+ * @param {boolean} status The test status 'success', 'warning' or 'danger'
  * @param {string} name Title or name of the test
  * @param {Object} message Messages for the test
  * @param {string} message.intro Intro text
@@ -89,35 +95,90 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
  * @param {jQuery} $result Result jQuery object
  * @return {jQuery} Table row
  */
-rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( status, messages, $result ) {
-	icon = status;
+rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status, messages, $result ) {
+	var $tr;
+
 	if ( status === 'warning' ) {
 		icon = 'exclamation-sign';
+	} else if ( status === 'success' ) {
+		icon = 'ok';
 	} else if ( status === 'danger' ) {
 		icon = 'thumbs-down';
 	}
 
-	return $( '<tr>' )
-		.addClass( 'alert-' + status )
-		.append(
-			// Icon
-			$( '<td>' )
+	$tr = $( '<tr>' )
+				.addClass( 'alert-' + status )
+				.addClass( 'rtlworks-ui-resultsPanel-table-result' )
 				.append(
-					$( '<span>' )
-						.addClass( 'glyphicon glyphicon-' + ( status === 'ok' ? 'ok' : 'exclamation-sign' ) )
-				),
-			$( '<td>' )
-				.append(
-					$( '<div>' )
-						.append( messages.intro )
-						.contents()
-				),
-			$( '<td>' )
-				.append( $result )
-			// TODO: Append an 'explanation' / 'help' icon
-			// with an actual explanation about what's going on
-			// with the results
-		);
+					// Icon
+					$( '<td>' )
+						.append(
+							$( '<span>' )
+								.addClass( 'glyphicon glyphicon-' + icon )
+						),
+					$( '<td>' )
+						.append(
+							$( '<div>' )
+								.append( messages.intro )
+								.contents()
+						),
+					$( '<td>' )
+						.append( $result )
+				);
+
+	// Trigger
+	$helpCell = $( '<td>' );
+
+	$tr.append( $helpCell );
+	$table.append( $tr );
+
+	if ( messages.description ) {
+		$helpCell
+			.addClass( 'rtlworks-ui-resultsPanel-table-description-trigger' )
+			.append(
+				$( '<span>' )
+					.addClass( 'glyphicon glyphicon-question-sign' )
+					.data( 'name', name )
+					.data( 'open', false )
+					.on( 'click', function () {
+						var name = $( this ).data( 'name' )
+							isOpen = !!$( this ).data( 'open' ),
+							$row = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-row' ),
+							$content = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-content' );
+
+						$row
+							.data( 'open', !isOpen );
+
+						if ( isOpen ) {
+							$content
+								.slideUp( 400, null, function () {
+									$row.hide();
+								} );
+						} else {
+							$row.show();
+							$content.slideDown();
+						}
+					} )
+			);
+		$table
+			.append(
+				$( '<tr>' )
+					.addClass( 'alert alert-info' )
+					.addClass( 'rtlworks-ui-resultsPanel-table-description-content' )
+					.addClass( 'rtlworks-ui-resultsPanel-table-description-' + name + '-row' )
+					.append(
+						$( '<td>' )
+							.attr( 'colspan', 10 )
+							.append(
+								$( '<div>' )
+									.addClass( 'rtlworks-ui-resultsPanel-table-description-' + name + '-content' )
+									.append( messages.description )
+									.hide()
+							)
+					)
+					.hide()
+			);
+	}
 };
 
 /**

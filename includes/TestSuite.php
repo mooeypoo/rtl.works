@@ -11,13 +11,12 @@ class TestSuite {
 	private $analysis = array();
 	private $twig;
 	private $testsDetails = array(
-		'dir_attr' => array(
-			'head' => array(
-				'intro' => 'Direction tags in the &lt;html&gt; or &lt;body&gt;',
-			),
-			'content' => array(
-				'intro' => 'Direction tags in content tags',
-			),
+		'dir_attr_global' => array(
+			'intro' => 'Direction tags in the &lt;html&gt; or &lt;body&gt;',
+		),
+		'dir_attr_content' => array(
+			'intro' => 'Direction tags in content tags',
+			'content' => false,
 		),
 		'css_float' => array(
 			'intro' => 'Elements with floating rules.'
@@ -68,7 +67,8 @@ class TestSuite {
 
 		if ( empty( $testTypes[ 0 ] ) || $testTypes[ 0 ] === 'all' ) {
 			$testTypes = array(
-				'dir_attr',
+				'dir_attr_global',
+				'dir_attr_content',
 				'css_float',
 				'css_direction',
 				'css_pos',
@@ -78,8 +78,10 @@ class TestSuite {
 
 		foreach ( $testTypes as $type ) {
 			switch ( $type ) {
-			case 'dir_attr':
-				$this->dirAttrTest();
+			case 'dir_attr_global':
+				$this->dirAttrGlobalTest();
+			case 'dir_attr_content':
+				$this->dirAttrContentTest();
 				break;
 			case 'css_float':
 				$this->cssFloatTest();
@@ -116,24 +118,55 @@ class TestSuite {
 	protected function addTestMessage( $test ) {
 		$this->analysis[ 'messages' ][ $test ] = $this->testsDetails[ $test ];
 		// Add compiled description
-		$this->analysis[ 'messages' ][ $test ][ 'description' ] = $this->twig->render( 'tests/' . $test .'.html' );
+		if ( !isset( $this->testsDetails[ $test ][ 'content' ] ) ) {
+			// Automatic template name
+			$template = 'tests/' . $test .'.html';
+		} else {
+			if ( is_string( $this->testsDetails[ $test ][ 'content' ] ) ) {
+				// Explicit template name
+				$template = $this->testsDetails[ $test ][ 'content' ];
+			} else {
+				// Don't add content template
+				return;
+			}
+		}
+		$this->analysis[ 'messages' ][ $test ][ 'description' ] = $this->twig->render( $template );
 	}
 
 	/**
 	 * Test whether there are dir attributes set on
 	 * the content related nodes in the document.
 	 */
-	protected function dirAttrTest() {
-		$content_tags = array( 'html', 'body', 'div', 'span', 'p', 'ul' );
+	protected function dirAttrGlobalTest() {
+		$content_tags = array( 'html', 'body');
 
 		// Look for dir tags in the content tags
 		foreach ( $content_tags as $tag ) {
 			$results = $this->contentParser->getAttributeForTags( $tag, 'dir' );
 
-			$this->analysis[ 'analysis' ][ 'dir_attr' ][ $tag ] = count( $results );
+			$this->analysis[ 'analysis' ][ 'dir_attr_global' ][ $tag ] = count( $results );
 
 			if ( count( $results ) > 0 ) {
-				$this->analysis[ 'raw_results' ][ 'dir_attr' ][ $tag ] = implode( ',', $results );
+				$this->analysis[ 'raw_results' ][ 'dir_attr_global' ][ $tag ] = implode( ',', $results );
+			}
+		}
+	}
+
+	/**
+	 * Test whether there are dir attributes set on
+	 * the content related nodes in the document.
+	 */
+	protected function dirAttrContentTest() {
+		$content_tags = array( 'div', 'span', 'p', 'ul' );
+
+		// Look for dir tags in the content tags
+		foreach ( $content_tags as $tag ) {
+			$results = $this->contentParser->getAttributeForTags( $tag, 'dir' );
+
+			$this->analysis[ 'analysis' ][ 'dir_attr_content' ][ $tag ] = count( $results );
+
+			if ( count( $results ) > 0 ) {
+				$this->analysis[ 'raw_results' ][ 'dir_attr_content' ][ $tag ] = implode( ',', $results );
 			}
 		}
 	}

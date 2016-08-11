@@ -114,6 +114,7 @@ body {
 
 .cover {
   padding: 0 20px;
+  margin-top: 10em;
 }
 .cover .btn-lg {
   padding: 10px 20px;
@@ -144,12 +145,12 @@ body {
 @media (min-width: 768px) {
   /* Pull out the header and footer */
   .masthead {
-    position: fixed;
+    position: absolute;
     top: 0;
+    margin-bottom: 4em;
   }
   .mastfoot {
-    position: fixed;
-    bottom: 0;
+    margin-top: 5em;
   }
   /* Start the vertical centering */
   .site-wrapper-inner {

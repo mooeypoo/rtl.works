@@ -11,36 +11,36 @@ rtlworks.dm.ResultsModel = function ( results ) {
 
 	this.results = {};
 	// Analysis
-	if ( this.hasTest( 'dir_attr' ) ) {
+	if ( this.hasTest( 'dir_attr_global' ) ) {
 		// A) <html> and <body>
 		this.addTestResults(
 			// Name
-			'dir_attr_head',
+			'dir_attr_global',
 			// Status type
 			'warning',
 			// Status
-			Number( results.analysis.dir_attr.html ) || Number( results.analysis.dir_attr.body ),
+			Number( results.analysis.dir_attr_global.html ) || Number( results.analysis.dir_attr_global.body ),
 			// Messages
-			results.messages.dir_attr.head,
+			results.messages.dir_attr_global,
 			// Results
-			{
-				html: results.analysis.dir_attr.html,
-				body: results.analysis.dir_attr.body
-			}
+			[
+				'html: ' + ( Number( results.analysis.dir_attr_global.html ) > 0 ? 'Yes' : 'No' ),
+				'body: ' + ( Number( results.analysis.dir_attr_global.body ) > 0 ? 'Yes' : 'No' ),
+			].join( ', ' )
 		);
+	}
 
+	if ( this.hasTest( 'dir_attr_content' ) ) {
 		// B) Directionality in other tags
 		countTotal = 0;
 		explanations = [];
-		Object.keys( results.analysis.dir_attr ).forEach( function ( key ) {
-			var num;
-			if ( key !== 'html' && key !== 'body' ) {
-				num = Number( results.analysis.dir_attr[ key ] );
-				countTotal += num;
+		Object.keys( results.analysis.dir_attr_content ).forEach( function ( key ) {
+			var num = Number( results.analysis.dir_attr_content[ key ] );
 
-				if ( num > 0 ) {
-					explanations.push( num + ' ' + key + '\'s' );
-				}
+			countTotal += num;
+
+			if ( num > 0 ) {
+				explanations.push( num + ' ' + key + '\'s' );
 			}
 		} );
 
@@ -52,7 +52,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			// Status
 			countTotal > 0,
 			// Messages
-			results.messages.dir_attr.content,
+			results.messages.dir_attr_content,
 			// Results
 			explanations.join( ', ' )
 		);
@@ -84,7 +84,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			// Status
 			( results.analysis.css_pos_absolute === 0 ),
 			// Messages
-			results.messages.css_pos,
+			results.messages.css_pos_absolute,
 			// Results
 			results.analysis.css_pos_absolute + ' rules'
 		);

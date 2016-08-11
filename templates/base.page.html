@@ -41,16 +41,17 @@
 			<div class="site-wrapper-inner">
 
 				<div class="cover-container">
-
 					<div class="masthead clearfix">
 						<div class="inner">
 							<h3 class="masthead-brand">RTL.works</h3>
 							{% include '_menu.html' %}
 						</div>
-						<div class="mastfoot">{% include '_footer.html' %}</div>
 					</div>
 
 					<div class="inner cover">{% block content %}{% endblock %}</div>
+
+					<div class="mastfoot">{% include '_footer.html' %}</div>
+				</div>
 			</div>
 
 		</div>
