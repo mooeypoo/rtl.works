@@ -12,7 +12,12 @@ class TestSuite {
 	private $twig;
 	private $testsDetails = array(
 		'dir_attr' => array(
-			'intro' => 'Direction tags in the &lt;html&gt; or &lt;body&gt;',
+			'head' => array(
+				'intro' => 'Direction tags in the &lt;html&gt; or &lt;body&gt;',
+			),
+			'content' => array(
+				'intro' => 'Direction tags in content tags',
+			),
 		),
 		'css_float' => array(
 			'intro' => 'Elements with floating rules.'

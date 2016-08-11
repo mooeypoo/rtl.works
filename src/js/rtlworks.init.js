@@ -34,7 +34,8 @@
 			rtlworks.network.runTests( url, 'all' )
 				.then( function ( results ) {
 					// Show result
-					var panel = new rtlworks.ui.ResultsPanel( results );
+					var model = new rtlworks.dm.ResultsModel( results ),
+						panel = new rtlworks.ui.ResultsPanel( model );
 
 					$resultDiv
 						.append( panel.$element )

@@ -54,6 +54,175 @@ rtlworks.network = {
 	}
 };
 
+rtlworks.dm = {};
+
+/**
+ * Model storing and analyzing the results
+ *
+ * @param {Object} results Results object
+ */
+rtlworks.dm.ResultsModel = function ( results ) {
+	var num, explanations;
+
+	this.tests = results.test_list;
+	this.url = results.url;
+
+	this.results = {};
+	// Analysis
+	if ( this.hasTest( 'dir_attr' ) ) {
+		// A) <html> and <body>
+		this.addTestResults(
+			// Name
+			'dir_attr_head',
+			// Status type
+			'warning',
+			// Status
+			Number( results.analysis.dir_attr.html ) || Number( results.analysis.dir_attr.body ),
+			// Messages
+			results.messages.dir_attr.head,
+			// Results
+			{
+				html: results.analysis.dir_attr.html,
+				body: results.analysis.dir_attr.body
+			}
+		);
+
+		// B) Directionality in other tags
+		countTotal = 0;
+		explanations = [];
+		Object.keys( results.analysis.dir_attr ).forEach( function ( key ) {
+			var num;
+			if ( key !== 'html' && key !== 'body' ) {
+				num = Number( results.analysis.dir_attr[ key ] );
+				countTotal += num;
+
+				if ( num > 0 ) {
+					explanations.push( num + ' ' + key + '\'s' );
+				}
+			}
+		} );
+
+		this.addTestResults(
+			// Name
+			'dir_attr_content',
+			// Status type
+			'warning',
+			// Status
+			countTotal > 0,
+			// Messages
+			results.messages.dir_attr.content,
+			// Results
+			explanations.join( ', ' )
+		);
+	}
+
+	// CSS: Float
+	if ( this.hasTest( 'css_float' ) ) {
+		this.addTestResults(
+			// Name
+			'css_float',
+			// Status type
+			'warning',
+			// Status
+			( results.analysis.css_float === 0 ),
+			// Messages
+			results.messages.css_float,
+			// Results
+			results.analysis.css_float + ' elements'
+		);
+	}
+
+	// CSS: Absolute positioning
+	if ( this.hasTest( 'css_pos_absolute' ) ) {
+		this.addTestResults(
+			// Name
+			'css_pos_absolute',
+			// Status type
+			'warning',
+			// Status
+			( results.analysis.css_pos_absolute === 0 ),
+			// Messages
+			results.messages.css_pos,
+			// Results
+			results.analysis.css_pos_absolute + ' rules'
+		);
+	}
+
+	// CSS: Explicit positioning (left/right)
+	if ( this.hasTest( 'css_pos' ) ) {
+		this.addTestResults(
+			// Name
+			'css_pos',
+			// Status type
+			'warning',
+			// Status
+			( results.analysis.css_pos_left === 0 && results.analysis.css_pos_right === 0 ),
+			// Messages
+			results.messages.css_pos,
+			// Results
+			{
+				left: results.analysis.css_pos_left,
+				right: results.analysis.css_pos_right
+			}
+		);
+	}
+};
+
+/**
+ * Add a test result to the object
+ *
+ * @param {[type]} name Test name
+ * @param {[type]} statusType Status type, defining whether the test
+ *  failure is 'warning' or 'danger'.
+ * @param {boolean} status Test status: Pass or fail
+ * @param {[type]} messages intro and description messages
+ * @param {[type]} results [description]
+ */
+rtlworks.dm.ResultsModel.prototype.addTestResults = function ( name, statusType, status, messages, results ) {
+	this.results[ name ] = {
+		status: !!status ? 'success' : statusType,
+		messages: messages,
+		results: results
+	};
+};
+
+/**
+ * Get test results
+ *
+ * @param {string} name Test name
+ * @return {Object} Results object
+ */
+rtlworks.dm.ResultsModel.prototype.getTestResults = function ( name ) {
+	return this.results[ name ];
+};
+
+rtlworks.dm.ResultsModel.prototype.getAllResults = function () {
+	return this.results;
+};
+
+/**
+ * Get the test list for this analysis
+ *
+ * @return {string[]} Test names
+ */
+rtlworks.dm.ResultsModel.prototype.getTests = function () {
+	return this.tests;
+};
+
+rtlworks.dm.ResultsModel.prototype.getUrl = function () {
+	return this.url;
+};
+
+/**
+ * Check if a test exists in the list
+ *
+ * @param {string} testName Test name
+ * @return {boolean} Test exists
+ */
+rtlworks.dm.ResultsModel.prototype.hasTest = function ( testName ) {
+	return this.tests.indexOf( testName ) > -1;
+};
+
 rtlworks.ui = {};
 
 /**
@@ -62,20 +231,21 @@ rtlworks.ui = {};
  * TODO: Might be better to analyze and store the data
  * better before letting the widget work with it.
  *
- * @param {Object} results Results object
+ * @param {rtlworks.dm.ResultsModel} model Results model
  * @param {Object} config Configuration object
  * @cfg {string} [title] Panel title
  * @cfg {string} [type='primary'] Panel type. Affects styling
  */
-rtlworks.ui.ResultsPanel = function ( results, config ) {
+rtlworks.ui.ResultsPanel = function ( model, config ) {
 	var $title, $body, countTotal, explanations,
+		panel = this,
 		$table = $( '<table>' )
 			.addClass( 'table' )
 			.addClass( 'rtlworks-ui-ResultsPanel-table' );
 
 	config = config || {};
 
-	this.tests = results.test_list;
+	this.model = model;
 
 	this.$element = $( '<div>' )
 		.addClass( 'panel panel-' + ( config.type || 'primary' ) )
@@ -87,7 +257,7 @@ rtlworks.ui.ResultsPanel = function ( results, config ) {
 			$( '<h3>' )
 				.addClass( 'panel-title' )
 				// TODO: Support i18n strings
-				.append( config.title || 'Results for <em>' + results.url + '</em>' )
+				.append( config.title || 'Results for <em>' + this.model.getUrl() + '</em>' )
 		);
 
 	this.$element.append( $title );
@@ -102,87 +272,34 @@ rtlworks.ui.ResultsPanel = function ( results, config ) {
 	}
 
 	// Build the table
-	// TODO: Seriously, this needs to be done better. Say, in a model <grumble grumble>
-	// TODO: Add explanations for why these tests matter,
-	// what they mean, and what people should pay attention to
+	Object.keys( this.model.getAllResults() ).forEach( function ( name ) {
+		var $result = $( '<div>' ),
+			test = panel.model.getTestResults( name );
 
-	if ( this.tests.indexOf( 'dir_attr' ) > -1 ) {
-		// Test a: Content; directionality in html/body
+		if ( name === 'dir_attr_head' ) {
+			$result.append(
+				$( '<p>' ).text( '&lt;html&gt: ' + test.results.html ? 'Yes' : 'No' ),
+				$( '<p>' ).text( '&lt;body&gt: ' + test.results.body ? 'Yes' : 'No' )
+			);
+		} else if ( name === 'css_pos' ) {
+			$result.append(
+				$( '<p>' ).text( 'left: ' + test.results.left ),
+				$( '<p>' ).text( 'right: ' + test.results.right )
+			);
+		} else {
+			$result.append(
+				$( '<p>' ).text( 'Found in: ' + test.results )
+			);
+		}
+
 		$table.append(
-			this.getTableRow(
-				( results.analysis.dir_attr.html || results.analysis.dir_attr.body ),
-				'Explicit directionality in &lt;html&gt; or &lt;body&gt; tags.',
-				$( '<div>' )
-					.append(
-						$( '<p>' )
-							.append( 'html tag: ' + this.getStringBoolean( results.analysis.dir_attr.html ) ),
-						$( '<p>' )
-							.append( 'body tag: ' + this.getStringBoolean( results.analysis.dir_attr.body ) )
-					).contents()
+			panel.getTableRow(
+				test.status,
+				test.messages,
+				$result.contents()
 			)
 		);
-
-		// Test b: Content; directionality in content blocks
-		countTotal = 0;
-		explanations = [];
-		Object.keys( results.analysis.dir_attr ).forEach( function ( key ) {
-			var num;
-			if ( key !== 'html' && key !== 'body' ) {
-				num = Number( results.analysis.dir_attr[ key ] );
-				countTotal += num;
-
-				if ( num > 0 ) {
-					explanations.push( num + ' ' + key + '\'s' );
-				}
-			}
-		} );
-		$table.append(
-			this.getTableRow(
-				countTotal > 0,
-				'Explicit directionality in content blocks.',
-				explanations.join( ', ' )
-			)
-		);
-	}
-
-	// Test CSS; float
-	if ( this.tests.indexOf( 'css_float' ) > -1 ) {
-		$table.append(
-			this.getTableRow(
-				( results.analysis.css_float === 0 ),
-				'Using floating elements',
-				results.analysis.css_float + ' elements defined with \'float\''
-			)
-		);
-	}
-
-	// Test CSS; absolute positioning
-	if ( this.tests.indexOf( 'css_pos_absolute' ) > -1 > -1 ) {
-		$table.append(
-			this.getTableRow(
-				( results.analysis.css_pos_absolute === 0 ),
-				'Using absolute positioning',
-				results.analysis.css_pos_absolute + ' elements absolutely positioned'
-			)
-		);
-	}
-
-	// Test CSS; explicit positioning (left/right)
-	if ( this.tests.indexOf( 'css_pos' ) > -1 ) {
-		$table.append(
-			this.getTableRow(
-				( results.analysis.css_pos_left === 0 && results.analysis.css_pos_right === 0 ),
-				'Explicit positioning (left/right)',
-				$( '<div>' )
-					.append(
-						$( '<p>' )
-							.append( results.analysis.css_pos_left + ' positioned \'left\'' ),
-						$( '<p>' )
-							.append( results.analysis.css_pos_right + ' positioned \'right\'' )
-					).contents()
-			)
-		);
-	}
+	} );
 
 	// Append the table
 	this.$element.append( $table );
@@ -191,25 +308,39 @@ rtlworks.ui.ResultsPanel = function ( results, config ) {
 /**
  * Get a full table row to append
  *
- * @param {boolean} isOkay The test passed
+ * @param {boolean} status The test status 'ok', 'warning' or 'danger'
  * @param {string} name Title or name of the test
- * @param {string} description Details of the test
+ * @param {Object} message Messages for the test
+ * @param {string} message.intro Intro text
+ * @param {string} message.description Description text
+ * @param {jQuery} $result Result jQuery object
  * @return {jQuery} Table row
  */
-rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( isOkay, name, details ) {
+rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( status, messages, $result ) {
+	icon = status;
+	if ( status === 'warning' ) {
+		icon = 'exclamation-sign';
+	} else if ( status === 'danger' ) {
+		icon = 'thumbs-down';
+	}
+
 	return $( '<tr>' )
-		.addClass( 'alert-' + ( isOkay ? 'success' : 'warning' ) )
+		.addClass( 'alert-' + status )
 		.append(
 			// Icon
 			$( '<td>' )
 				.append(
 					$( '<span>' )
-						.addClass( 'glyphicon glyphicon-' + ( isOkay ? 'ok' : 'exclamation-sign' ) )
+						.addClass( 'glyphicon glyphicon-' + ( status === 'ok' ? 'ok' : 'exclamation-sign' ) )
 				),
 			$( '<td>' )
-				.append( name ),
+				.append(
+					$( '<div>' )
+						.append( messages.intro )
+						.contents()
+				),
 			$( '<td>' )
-				.append( details )
+				.append( $result )
 			// TODO: Append an 'explanation' / 'help' icon
 			// with an actual explanation about what's going on
 			// with the results
@@ -262,7 +393,8 @@ rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 			rtlworks.network.runTests( url, 'all' )
 				.then( function ( results ) {
 					// Show result
-					var panel = new rtlworks.ui.ResultsPanel( results );
+					var model = new rtlworks.dm.ResultsModel( results ),
+						panel = new rtlworks.ui.ResultsPanel( model );
 
 					$resultDiv
 						.append( panel.$element )
