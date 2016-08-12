@@ -14,7 +14,31 @@ body {
   color: #666;
   text-shadow: none;
 }
-.rtlworks-ui-ResultsPanel-table a {
+.rtlworks-ui-ResultsPanel a {
   color: #666;
   font-weight: bold;
+}
+.rtlworks-ui-ResultsPanel-body-summary,
+.rtlworks-ui-ResultsPanel-body-intro {
+  color: #337ab7;
+  text-shadow: none;
+  padding: 0.5em;
+  text-align: center;
+}
+.rtlworks-ui-ResultsPanel-body-summary h1,
+.rtlworks-ui-ResultsPanel-body-intro h1 {
+  font-size: 1.8em;
+  margin: 0;
+  font-weight: bold;
+}
+.rtlworks-ui-ResultsPanel-body-summary p,
+.rtlworks-ui-ResultsPanel-body-intro p {
+  margin: 0.2em;
+  font-weight: bold;
+}
+.rtlworks-ui-ResultsPanel-body-summary {
+  color: #666;
+}
+.rtlworks-ui-ResultsPanel-body-summary p {
+  font-weight: normal;
 }

@@ -5,10 +5,37 @@
 		text-shadow: none;
 	}
 
-	&-table {
-		a {
+	a {
+		color: #666;
+		font-weight: bold;
+	}
+
+	&-body {
+		&-summary,
+		&-intro {
+			color: #337ab7;
+			text-shadow: none;
+			padding: 0.5em;
+			text-align: center;
+
+			h1 {
+				font-size: 1.8em;
+				margin: 0;
+				font-weight: bold;
+			}
+
+			p {
+				margin: 0.2em;
+				font-weight: bold;
+			}
+		}
+
+		&-summary {
 			color: #666;
-			font-weight: bold;
+
+			p {
+				font-weight: normal;
+			}
 		}
 	}
 }

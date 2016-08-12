@@ -8,6 +8,11 @@ rtlworks.dm.ResultsModel = function ( results ) {
 
 	this.tests = results.test_list;
 	this.url = results.url;
+	this.numbers = {
+		success: 0,
+		warning: 0,
+		danger: 0
+	};
 
 	this.results = {};
 	// Analysis
@@ -116,16 +121,18 @@ rtlworks.dm.ResultsModel = function ( results ) {
  * @param {[type]} name Test name
  * @param {[type]} statusType Status type, defining whether the test
  *  failure is 'warning' or 'danger'.
- * @param {boolean} status Test status: Pass or fail
+ * @param {boolean} passfail Test passed or failed
  * @param {[type]} messages intro and description messages
  * @param {[type]} results [description]
  */
-rtlworks.dm.ResultsModel.prototype.addTestResults = function ( name, statusType, status, messages, results ) {
+rtlworks.dm.ResultsModel.prototype.addTestResults = function ( name, statusType, passfail, messages, results ) {
 	this.results[ name ] = {
-		status: !!status ? 'success' : statusType,
+		status: !!passfail ? 'success' : statusType,
 		messages: messages,
 		results: results
 	};
+
+	this.numbers[ passfail ? 'success' : statusType  ]++;
 };
 
 /**
@@ -140,6 +147,10 @@ rtlworks.dm.ResultsModel.prototype.getTestResults = function ( name ) {
 
 rtlworks.dm.ResultsModel.prototype.getAllResults = function () {
 	return this.results;
+};
+
+rtlworks.dm.ResultsModel.prototype.getNumberForType = function ( status ) {
+	return this.numbers[ status ];
 };
 
 /**

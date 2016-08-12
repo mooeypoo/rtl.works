@@ -66,6 +66,11 @@ rtlworks.dm.ResultsModel = function ( results ) {
 
 	this.tests = results.test_list;
 	this.url = results.url;
+	this.numbers = {
+		success: 0,
+		warning: 0,
+		danger: 0
+	};
 
 	this.results = {};
 	// Analysis
@@ -174,16 +179,18 @@ rtlworks.dm.ResultsModel = function ( results ) {
  * @param {[type]} name Test name
  * @param {[type]} statusType Status type, defining whether the test
  *  failure is 'warning' or 'danger'.
- * @param {boolean} status Test status: Pass or fail
+ * @param {boolean} passfail Test passed or failed
  * @param {[type]} messages intro and description messages
  * @param {[type]} results [description]
  */
-rtlworks.dm.ResultsModel.prototype.addTestResults = function ( name, statusType, status, messages, results ) {
+rtlworks.dm.ResultsModel.prototype.addTestResults = function ( name, statusType, passfail, messages, results ) {
 	this.results[ name ] = {
-		status: !!status ? 'success' : statusType,
+		status: !!passfail ? 'success' : statusType,
 		messages: messages,
 		results: results
 	};
+
+	this.numbers[ passfail ? 'success' : statusType  ]++;
 };
 
 /**
@@ -198,6 +205,10 @@ rtlworks.dm.ResultsModel.prototype.getTestResults = function ( name ) {
 
 rtlworks.dm.ResultsModel.prototype.getAllResults = function () {
 	return this.results;
+};
+
+rtlworks.dm.ResultsModel.prototype.getNumberForType = function ( status ) {
+	return this.numbers[ status ];
 };
 
 /**
@@ -268,14 +279,45 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 	this.$element
 		.append(
 			$( '<div>' )
-				.addClass( 'panel-body alert-info' )
-				.addClass( 'rtlworks-ui-ResultsPanel-body' )
+				.addClass( 'panel-body' )
+				.addClass( 'rtlworks-ui-ResultsPanel-body-intro' )
 				.append(
-					config.body ||
-					'We can\'t really tell. No automated system can... but we <strong>can</strong> give you some pointers!'
+					$( '<h1>' ).append( 'We can\'t really tell.' ),
+					$( '<p>' ).append( '(No automated system can...)' ),
+					$( '<h1>' ).append( 'But we <strong>can</strong> give you some pointers!' )
 				)
 		);
 
+	// Summary
+	summary = [];
+	if ( this.model.getNumberForType( 'success' ) ) {
+		summary.push( '<strong>' + this.model.getNumberForType( 'success' ) + '</strong> successfull tests' );
+	}
+
+	if ( this.model.getNumberForType( 'warning' ) ) {
+		summary.push( '<strong>' + this.model.getNumberForType( 'warning' ) + '</strong> tests with warnings' );
+	}
+
+	if ( this.model.getNumberForType( 'danger' ) ) {
+		summary.push( '<strong>' + this.model.getNumberForType( 'danger' ) + '</strong> failed tests' );
+	}
+
+	lastItem = summary.pop();
+	finalSummary = 'We found ';
+	if ( summary.length > 0 ) {
+		finalSummary += summary.join( ', ' ) + ' and ' + lastItem;
+	} else if ( lastItem ) {
+		finalSummary += lastItem;
+	} else {
+		finalSummary = 'Here\'s what we found:';
+	}
+
+	this.$element.append(
+		$( '<div>' )
+			.addClass( 'panel-body' )
+			.addClass( 'rtlworks-ui-ResultsPanel-body-summary' )
+			.append( $( '<p>' ).append( finalSummary ) )
+	);
 
 	// Build the table
 	Object.keys( this.model.getAllResults() ).forEach( function ( name ) {
@@ -304,7 +346,7 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 			test.status,
 			test.messages,
 			$result.contents()
-		)
+		);
 	} );
 
 	// Append the table
@@ -373,8 +415,7 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 							$row = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-row' ),
 							$content = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-content' );
 
-						$row
-							.data( 'open', !isOpen );
+						$( this ).data( 'open', !isOpen );
 
 						if ( isOpen ) {
 							$content
