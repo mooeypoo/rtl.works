@@ -86,10 +86,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			// Messages
 			results.messages.dir_attr_global,
 			// Results
-			[
-				'html: ' + ( Number( results.analysis.dir_attr_global.html ) > 0 ? 'Yes' : 'No' ),
-				'body: ' + ( Number( results.analysis.dir_attr_global.body ) > 0 ? 'Yes' : 'No' ),
-			].join( ', ' )
+			results.analysis.dir_attr_global
 		);
 	}
 
@@ -118,6 +115,26 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			results.messages.dir_attr_content,
 			// Results
 			explanations.join( ', ' )
+		);
+	}
+
+	// Number of LTR vs RTL characters
+	if ( this.hasTest( 'char_dir_dist' ) ) {
+		this.addTestResults(
+			// Name
+			'char_dir_dist',
+			// Status type
+			'danger',
+			// Status
+			(
+				// This test passes if there are only characters in one direction
+				( results.analysis.char_dir_dist.ltr > 0 && results.analysis.char_dir_dist.rtl === 0 ) ||
+				( results.analysis.char_dir_dist.ltr === 0 && results.analysis.char_dir_dist.rtl > 0 )
+			),
+			// Messages
+			results.messages.char_dir_dist,
+			// Results
+			results.analysis.char_dir_dist
 		);
 	}
 
@@ -324,16 +341,39 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 		var $result = $( '<div>' ),
 			test = panel.model.getTestResults( name );
 
-		if ( name === 'dir_attr_head' ) {
+		if ( name === 'dir_attr_global' ) {
 			$result.append(
-				$( '<p>' ).text( '&lt;html&gt: ' + test.results.html ? 'Yes' : 'No' ),
-				$( '<p>' ).text( '&lt;body&gt: ' + test.results.body ? 'Yes' : 'No' )
+				$( '<ul>' ).append(
+					$( '<li>' ).text( '<html>: ' + ( test.results.html ? 'Yes' : 'No' ) ),
+					$( '<li>' ).text( '<body>: ' + ( test.results.body ? 'Yes' : 'No' ) )
+				)
 			);
 		} else if ( name === 'css_pos' ) {
 			$result.append(
 				$( '<p>' ).text( 'left: ' + test.results.left ),
 				$( '<p>' ).text( 'right: ' + test.results.right )
 			);
+		} else if ( name === 'char_dir_dist' ) {
+			if ( test.results.ltr > 0 && test.results.rtl === 0 ) {
+				$result.append(
+					$( '<p>' ).text( 'Website content is only in LTR.' )
+				);
+			} else if ( test.results.ltr === 0 && test.results.rtl > 0 ) {
+				$result.append(
+					$( '<p>' ).text( 'Website content is only in RTL.' )
+				);
+			} else {
+				$result.append(
+					$( '<p>' ).append(
+						$( '<strong>' ).append( 'WATCH OUT: Website content is mixed</strong><br />' ),
+						$( '<small>' ).append( 'Make sure to properly isolate or embed.' )
+					),
+					$( '<ul>' ).append(
+						$( '<li>' ).text( test.results.ltr + ' characters in LTR' ),
+						$( '<li>' ).text( test.results.rtl + ' characters in RTL' )
+					)
+				);
+			}
 		} else {
 			$result.append(
 				$( '<p>' ).text( 'Found in: ' + test.results )
@@ -365,14 +405,14 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
  * @return {jQuery} Table row
  */
 rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status, messages, $result ) {
-	var $tr;
+	var $tr, descriptionMessage;
 
 	if ( status === 'warning' ) {
 		icon = 'exclamation-sign';
 	} else if ( status === 'success' ) {
 		icon = 'ok';
 	} else if ( status === 'danger' ) {
-		icon = 'thumbs-down';
+		icon = 'fire';
 	}
 
 	$tr = $( '<tr>' )
@@ -428,6 +468,7 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 						}
 					} )
 			);
+
 		$table
 			.append(
 				$( '<tr>' )

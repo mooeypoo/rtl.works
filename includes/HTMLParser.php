@@ -8,8 +8,10 @@ namespace RTLWORKS;
 class HTMLParser {
 	private $doc;
 	private $xpath;
+	private $originalHtml;
 
 	function __construct( $html ) {
+		$this->originalHtml = $html;
 		$this->doc = new \DomDocument();
 		$success = @$this->doc->loadHTML( $html );
 		$this->setErrorState( $success );
@@ -54,6 +56,10 @@ class HTMLParser {
 		}
 
 		return $cssurls;
+	}
+
+	public function getDocumentHtml() {
+		return $this->originalHtml;
 	}
 
 	/**

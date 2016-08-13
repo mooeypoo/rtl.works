@@ -30,6 +30,9 @@ class TestSuite {
 		'css_pos_absolute' => array(
 			'intro' => 'Absolutely positioned elements'
 		),
+		'char_dir_dist' => array(
+			'intro' => 'Looking for characters in different directionalities',
+		)
 	);
 
 	function __construct( $twig, $url, $parsedContent, $cssFiles = array() ) {
@@ -72,7 +75,8 @@ class TestSuite {
 				'css_float',
 				'css_direction',
 				'css_pos',
-				'css_pos_absolute'
+				'css_pos_absolute',
+				'char_dir_dist',
 			);
 		}
 
@@ -94,6 +98,9 @@ class TestSuite {
 				break;
 			case 'css_pos_absolute':
 				$this->cssAbsolutePositioning();
+				break;
+			case 'char_dir_dist':
+				$this->charDirDistribution();
 				break;
 			default:
 				$this->errors[] = 'Test type "' . $type . '" was not recognized.';
@@ -202,6 +209,12 @@ class TestSuite {
 	 */
 	protected function cssAbsolutePositioning() {
 		$countRight = $this->cssTermExistenceTest( 'absolute', 'css_pos_absolute' );
+	}
+
+	protected function charDirDistribution() {
+		$this->analysis[ 'analysis' ][ 'char_dir_dist' ] = LanguageDetector::DirGroupsFromContent(
+			$this->contentParser->getDocumentHtml()
+		);
 	}
 
 	/**

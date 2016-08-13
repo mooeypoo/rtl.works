@@ -28,10 +28,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			// Messages
 			results.messages.dir_attr_global,
 			// Results
-			[
-				'html: ' + ( Number( results.analysis.dir_attr_global.html ) > 0 ? 'Yes' : 'No' ),
-				'body: ' + ( Number( results.analysis.dir_attr_global.body ) > 0 ? 'Yes' : 'No' ),
-			].join( ', ' )
+			results.analysis.dir_attr_global
 		);
 	}
 
@@ -60,6 +57,26 @@ rtlworks.dm.ResultsModel = function ( results ) {
 			results.messages.dir_attr_content,
 			// Results
 			explanations.join( ', ' )
+		);
+	}
+
+	// Number of LTR vs RTL characters
+	if ( this.hasTest( 'char_dir_dist' ) ) {
+		this.addTestResults(
+			// Name
+			'char_dir_dist',
+			// Status type
+			'danger',
+			// Status
+			(
+				// This test passes if there are only characters in one direction
+				( results.analysis.char_dir_dist.ltr > 0 && results.analysis.char_dir_dist.rtl === 0 ) ||
+				( results.analysis.char_dir_dist.ltr === 0 && results.analysis.char_dir_dist.rtl > 0 )
+			),
+			// Messages
+			results.messages.char_dir_dist,
+			// Results
+			results.analysis.char_dir_dist
 		);
 	}
 
