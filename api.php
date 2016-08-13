@@ -59,8 +59,12 @@ $app->run();
 
 function getResponseForTests( &$response, $url, $tests ) {
 
+	// Normalize URL
+	$url = RTLWORKS\Proxy::normalizeURL( $url );
+
 	$proxy = new RTLWORKS\Proxy();
 	$pageContents = $proxy->fetch( $url );
+
 	$contentParser = new RTLWORKS\HTMLParser( $pageContents );
 	$cssFiles = $contentParser->getCSSFiles( $proxy->getParsedUrl() );
 

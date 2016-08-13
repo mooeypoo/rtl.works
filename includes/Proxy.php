@@ -21,6 +21,21 @@ class Proxy {
 
 	}
 
+	public static function normalizeURL( $url ) {
+		// Check if URL has scheme:
+		$parsed = parse_url( $url );
+		if (
+			!isset( $parsed[ 'scheme' ] ) ||
+			empty( $parsed[ 'scheme' ] )
+		) {
+			// Assume a URL without a scheme is an
+			// http:// URL
+			$url = 'http://' . $url;
+		}
+
+		return $url;
+	}
+
 	/**
 	 * Fetch the given URL.
 	 *
@@ -28,6 +43,8 @@ class Proxy {
 	 * @return string The contents of the page.
 	 */
 	public function fetch( $url ) {
+		// Normalize URL
+		$url = self::normalizeURL( $url );
 		// Store the parsed url
 		$this->parsedUrl = parse_url( $url );
 		// Open connection
