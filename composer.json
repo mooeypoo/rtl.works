@@ -13,7 +13,8 @@
 	],
 	"require": {
 		"slim/slim": "^3.0",
-		"twig/twig": "~1.0"
+		"twig/twig": "~1.0",
+		"paquettg/php-html-parser": "^1.7"
 	},
 	"support": {
 		"issues": "https://github.com/mooeypoo/rtl.works/issues"

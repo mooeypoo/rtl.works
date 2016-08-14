@@ -7,15 +7,15 @@ namespace RTLWORKS;
  */
 class HTMLParser {
 	private $doc;
-	private $xpath;
 	private $originalHtml;
 
 	function __construct( $html ) {
 		$this->originalHtml = $html;
-		$this->doc = new \DomDocument();
-		$success = @$this->doc->loadHTML( $html );
+		$this->doc = new \PHPHtmlParser\Dom();
+		$success = $this->doc->load( $html );
+
+		// $success = @$this->doc->loadHTML( $html );
 		$this->setErrorState( $success );
-		$this->xpath = new \DOMXPath( $this->doc );
 	}
 
 	/**
@@ -28,11 +28,11 @@ class HTMLParser {
 	 *  stylesheets
 	 */
 	public function getCSSFiles( $parsedUrl ) {
-		$stylesheetNodes = $this->xpath->query( '//link[@rel="stylesheet"]' );
+		$linkNodes = $this->doc->find( 'link[rel="stylesheet"]' );
 
 		$cssurls = array();
 
-		foreach ( $stylesheetNodes as $node ) {
+		foreach ( $linkNodes as $node ) {
 			$href = $node->getAttribute( 'href' );
 
 			// Normalize urls.
@@ -73,14 +73,7 @@ class HTMLParser {
 	 * @return string Content
 	 */
 	public function getDocumentContent() {
-		$result = '';
-
-		$nodeList = $this->xpath->query( '//body//text()' );
-		foreach ( $nodeList as $node ) {
-			$result .= ' ' . $node->textContent;
-		}
-
-		return $result;
+		return $this->doc->root->text( true );
 	}
 
 	/**
@@ -95,7 +88,7 @@ class HTMLParser {
 	public function getAttributeForTags( $tag, $attr ) {
 		$values = array();
 
-		$tags = $this->doc->getElementsByTagName( $tag );
+		$tags = $this->doc->find( $tag );
 		foreach ( $tags as $tag ) {
 			$value = $tag->getAttribute( $attr );
 			if ( !empty( $value ) ) {

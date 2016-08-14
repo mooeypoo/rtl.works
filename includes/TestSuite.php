@@ -212,7 +212,7 @@ class TestSuite {
 	}
 
 	protected function charDirDistribution() {
-		$result = $this->contentParser->getDocumentHtml();
+		$result = $this->contentParser->getDocumentContent();
 
 		$this->analysis[ 'analysis' ][ 'char_dir_dist' ] = LanguageDetector::DirGroupsCount( $result );
 	}
