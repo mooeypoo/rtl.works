@@ -42,7 +42,19 @@
 
 						$loading.hide();
 					} )
-					.then( function () {
+					.fail( function () {
+						$loading.hide();
+
+						$resultDiv
+							.append(
+								$( '<div>' )
+									.addClass( 'alert alert-warning' )
+									.attr( 'role', 'alert' )
+									.text( 'Could not load this page. Please check the URL.' )
+								)
+								.slideDown();
+					} )
+					.always( function () {
 						rtlworks.util.setDisabled( $button, false );
 						rtlworks.util.setDisabled( $input, false );
 					} );

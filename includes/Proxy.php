@@ -51,8 +51,17 @@ class Proxy {
 		$this->startConnection( $url );
 		// Request the data
 		$response = curl_exec( $this->curl );
+
+		$error = curl_error( $this->curl );
+
 		// Close connection
 		$this->closeConnection();
+
+		// Throw an error if there is one
+		if ( $error ) {
+			// TODO: This should be handled better in general
+			throw new Exception( $error );
+		}
 
 		// Return the response
 		return $response;
