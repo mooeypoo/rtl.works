@@ -33,7 +33,7 @@ class HTMLParser {
 		$cssurls = array();
 
 		foreach ( $linkNodes as $node ) {
-			$href = $node->getAttribute( 'href' );
+			$href = htmlspecialchars_decode( $node->getAttribute( 'href' ) );
 
 			// Normalize urls.
 			// Adapted from http://stackoverflow.com/questions/14258708/how-to-get-contents-of-page-stylesheets-using-php-dom/14258882#14258882
@@ -41,12 +41,12 @@ class HTMLParser {
 				// Good as-is
 				$link = $href;
 			} else if ( substr( $href, 0, 1 ) === '/' ) {
-				$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . '/' . $href;
+				$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . $href;
 			} else {
 				$link = $parsedUrl[ 'scheme' ] . '://' .
 					$parsedUrl[ 'host' ] . '/' .
 					(
-						isset( $parsedUrl[ 'path' ] ) && !empty( $parsedUrl[ 'path' ] ) ?
+						( isset( $parsedUrl[ 'path' ] ) && !empty( $parsedUrl[ 'path' ] ) ) ?
 							$parsedUrl[ 'path' ] . '/' : ''
 					) .
 					$href;
