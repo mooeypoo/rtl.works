@@ -58,8 +58,29 @@ class HTMLParser {
 		return $cssurls;
 	}
 
+	/**
+	 * Get the raw, original HTML
+	 * @return string Original HTML
+	 */
 	public function getDocumentHtml() {
 		return $this->originalHtml;
+	}
+
+	/**
+	 * Get the content of the HTML page, minus
+	 * HTML tags.
+	 *
+	 * @return string Content
+	 */
+	public function getDocumentContent() {
+		$result = '';
+
+		$nodeList = $this->xpath->query( '//body//text()' );
+		foreach ( $nodeList as $node ) {
+			$result .= ' ' . $node->textContent;
+		}
+
+		return $result;
 	}
 
 	/**

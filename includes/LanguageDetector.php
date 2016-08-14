@@ -19,7 +19,7 @@ class LanguageDetector {
 	);
 
 	/**
-	 * Gets directionality of the first strongly directional codepoint
+	 * Gets the distribution of RTL and LTR characters in the text
 	 *
 	 * This is the rule the BIDI algorithm uses to determine the directionality of
 	 * paragraphs ( http://unicode.org/reports/tr9/#The_Paragraph_Level ) and
@@ -31,10 +31,54 @@ class LanguageDetector {
 	 * @param string $text Text to test
 	 * @return array Array with number of ltr characters and rtl characters
 	 */
-	public static function DirGroupsFromContent( $text = '' ) {
+	public static function DirGroupsCount( $text = '' ) {
+		$count = array(
+			'ltr' => 0,
+			'rtl' => 0,
+		);
+		$offset = array(
+			'ltr' => 0,
+			'rtl' => 0,
+		);
+		$match = array(
+			'ltr' => '',
+			'rtl' => '',
+		);
+
+		// We are going to iterate over the string with offsets
+		// this is better for memory than using preg_match_all
+		// (h/t @mattflaschen for this)
+		$dirs = array( 'ltr', 'rtl' );
+		foreach ( $dirs as $dir ) {
+			while ( $result = preg_match(
+					self::$strongDirRegex[ $dir ],
+					$text,
+					$match[ $dir ],
+					PREG_OFFSET_CAPTURE,
+					$offset[ $dir ]
+				)
+			) {
+
+			    $offset[ $dir ] = $match[ $dir ][0][1] +
+					strlen( $match[ $dir ][0][0] );
+				$count[ $dir ]++;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Get an existence test for character directionality
+	 *
+	 * @param string $text Text to test
+	 * @param int $offset String offset to start the test
+	 * @return array Array with boolean values of whether ltr and rtl characters exist
+	 */
+	public static function DirGroupsExist( $text = '', $offset = 0 ) {
 		return array(
-			'ltr' => preg_match_all( self::$strongDirRegex[ 'ltr' ], $text, $ltr_matches ),
-			'rtl' => preg_match_all( self::$strongDirRegex[ 'rtl' ], $text,  $rtl_matches ),
+			'ltr' => (bool)preg_match( self::$strongDirRegex[ 'ltr' ], $text, $ltr_matches ),
+			'rtl' => (bool)preg_match( self::$strongDirRegex[ 'rtl' ], $text,  $rtl_matches ),
 		);
 
 	}
