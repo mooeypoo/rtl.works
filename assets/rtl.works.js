@@ -71,6 +71,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 		warning: 0,
 		danger: 0
 	};
+	this.probableSiteDir = '';
 
 	this.results = {};
 	// Analysis
@@ -120,6 +121,9 @@ rtlworks.dm.ResultsModel = function ( results ) {
 
 	// Number of LTR vs RTL characters
 	if ( this.hasTest( 'char_dir_dist' ) ) {
+		this.probableSiteDir = results.analysis.char_dir_dist.rtl > results.analysis.char_dir_dist.ltr ?
+			'rtl' : 'ltr';
+
 		this.addTestResults(
 			// Name
 			'char_dir_dist',
@@ -241,6 +245,10 @@ rtlworks.dm.ResultsModel.prototype.getUrl = function () {
 	return this.url;
 };
 
+rtlworks.dm.ResultsModel.prototype.getProbableDir = function () {
+	return this.probableSiteDir;
+};
+
 /**
  * Check if a test exists in the list
  *
@@ -292,6 +300,26 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 				)
 		);
 
+	if ( this.model.getProbableDir() === 'rtl' ) {
+		// Probably direction is already RTL
+		this.$element
+			.append(
+				$( '<div>' )
+					.addClass( 'panel-body' )
+					.addClass( 'rtlworks-ui-ResultsPanel-body-intro' )
+					.append(
+						$( '<div>' )
+							.addClass( 'alert alert-info' )
+							.append(
+								$( '<p>' )
+									.append( 'This site is probably Right-to-Left' ),
+								$( '<p>' )
+									.append( 'But the results below can tell you if your site can support Left-to-Right, too!' )
+							)
+					)
+			);
+	}
+
 	// Body
 	this.$element
 		.append(
@@ -308,15 +336,15 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 	// Summary
 	summary = [];
 	if ( this.model.getNumberForType( 'success' ) ) {
-		summary.push( '<strong>' + this.model.getNumberForType( 'success' ) + '</strong> successfull tests' );
+		summary.push( '<strong>' + this.model.getNumberForType( 'success' ) + '</strong> successfull test(s)' );
 	}
 
 	if ( this.model.getNumberForType( 'warning' ) ) {
-		summary.push( '<strong>' + this.model.getNumberForType( 'warning' ) + '</strong> tests with warnings' );
+		summary.push( '<strong>' + this.model.getNumberForType( 'warning' ) + '</strong> test(s) with warnings' );
 	}
 
 	if ( this.model.getNumberForType( 'danger' ) ) {
-		summary.push( '<strong>' + this.model.getNumberForType( 'danger' ) + '</strong> failed tests' );
+		summary.push( '<strong>' + this.model.getNumberForType( 'danger' ) + '</strong> issue(s) you should watch out for' );
 	}
 
 	lastItem = summary.pop();

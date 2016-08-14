@@ -18,6 +18,9 @@ body {
   color: #666;
   font-weight: bold;
 }
+.rtlworks-ui-ResultsPanel .alert {
+  margin: 0;
+}
 .rtlworks-ui-ResultsPanel-body-summary,
 .rtlworks-ui-ResultsPanel-body-intro {
   color: #337ab7;

@@ -13,6 +13,7 @@ rtlworks.dm.ResultsModel = function ( results ) {
 		warning: 0,
 		danger: 0
 	};
+	this.probableSiteDir = '';
 
 	this.results = {};
 	// Analysis
@@ -62,6 +63,9 @@ rtlworks.dm.ResultsModel = function ( results ) {
 
 	// Number of LTR vs RTL characters
 	if ( this.hasTest( 'char_dir_dist' ) ) {
+		this.probableSiteDir = results.analysis.char_dir_dist.rtl > results.analysis.char_dir_dist.ltr ?
+			'rtl' : 'ltr';
+
 		this.addTestResults(
 			// Name
 			'char_dir_dist',
@@ -181,6 +185,10 @@ rtlworks.dm.ResultsModel.prototype.getTests = function () {
 
 rtlworks.dm.ResultsModel.prototype.getUrl = function () {
 	return this.url;
+};
+
+rtlworks.dm.ResultsModel.prototype.getProbableDir = function () {
+	return this.probableSiteDir;
 };
 
 /**
