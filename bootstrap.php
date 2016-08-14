@@ -16,7 +16,7 @@ if ( strpos( $baseurl, '/' ) !== strlen( $baseurl ) - 1 ) {
 $menuItems = array(
 	'test' => array(
 		'url' => $baseurl,
-		'label' => 'Test!'
+		'label' => 'Analyze!'
 	),
 	'explanation' => array(
 		'url' => 'explanation.php',
