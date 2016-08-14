@@ -404,7 +404,11 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 			}
 		} else {
 			$result.append(
-				$( '<p>' ).text( 'Found in: ' + test.results )
+				$( '<p>' ).text(
+					test.results ?
+						'Found in: ' + test.results :
+						'Not found'
+				)
 			);
 		}
 

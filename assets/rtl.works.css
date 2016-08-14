@@ -21,6 +21,9 @@ body {
 .rtlworks-ui-ResultsPanel .alert {
   margin: 0;
 }
+.rtlworks-ui-ResultsPanel-table-description-trigger {
+  vertical-align: bottom;
+}
 .rtlworks-ui-ResultsPanel-body-summary,
 .rtlworks-ui-ResultsPanel-body-intro {
   color: #337ab7;
