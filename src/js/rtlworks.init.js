@@ -7,7 +7,7 @@
 			$loading = $( '#rtlworks-loading' )
 				.addClass( 'rtlworks-spinner' )
 				.hide(),
-			onAnalyzeButtonClick = function onAnalyzeButtonClick () {
+			runAnalysis = function runAnalysis () {
 				var url = $input.val();
 
 				$resultDiv
@@ -62,10 +62,17 @@
 				return false;
 			};
 
-		$button.on( 'click', onAnalyzeButtonClick );
+		if ( RTLWORKS_REQUESTED_URL ) {
+			// Place the URL in the input box and activate
+			// the analysis
+			$input.val( RTLWORKS_REQUESTED_URL );
+			runAnalysis();
+		}
+
+		$button.on( 'click', runAnalysis );
 		$input.on( 'keypress', function ( e ) {
 			if ( e.which === 13 ) {
-				onAnalyzeButtonClick();
+				runAnalysis();
 				return false;
 			}
 		} );

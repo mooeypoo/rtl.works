@@ -31,7 +31,8 @@
 		<![endif]-->
 		<script type='text/javascript'>
 			// HACK: Leak the baseurl so the JS can use it
-			var RTLWORKS_BASE_URL = '{{ baseurl }}';
+			var RTLWORKS_BASE_URL = '{{ baseurl }}',
+				RTLWORKS_REQUESTED_URL = '{{ requested_url }}';
 		</script>
 	</head>
 
