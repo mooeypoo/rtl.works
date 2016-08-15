@@ -16,6 +16,7 @@
 				$resultDiv
 					.slideUp()
 					.empty();
+				$sharingDiv.hide();
 
 				if ( !rtlworks.network.isUrlValid( url ) ) {
 					$resultDiv

@@ -628,6 +628,7 @@ rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 				$resultDiv
 					.slideUp()
 					.empty();
+				$sharingDiv.hide();
 
 				if ( !rtlworks.network.isUrlValid( url ) ) {
 					$resultDiv
