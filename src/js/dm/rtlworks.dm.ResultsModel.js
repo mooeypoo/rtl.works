@@ -2,8 +2,10 @@
  * Model storing and analyzing the results
  *
  * @param {Object} results Results object
+ * @param {Object} [config] Configuration object
+ * @cfg {string} [baseUrl=http://rtl.works] Base URL
  */
-rtlworks.dm.ResultsModel = function ( results ) {
+rtlworks.dm.ResultsModel = function ( results, config ) {
 	var num, explanations;
 
 	this.tests = results.test_list;
@@ -14,6 +16,10 @@ rtlworks.dm.ResultsModel = function ( results ) {
 		danger: 0
 	};
 	this.probableSiteDir = '';
+
+	// TODO: Figure out the base_url problem so this
+	// can be more generalized
+	this.permalink = 'http://rtl.works/' + '?' + $.param( { url: this.url } );
 
 	this.results = {};
 	// Analysis
@@ -168,6 +174,10 @@ rtlworks.dm.ResultsModel.prototype.getTestResults = function ( name ) {
 
 rtlworks.dm.ResultsModel.prototype.getAllResults = function () {
 	return this.results;
+};
+
+rtlworks.dm.ResultsModel.prototype.getPermalink = function () {
+	return this.permalink;
 };
 
 rtlworks.dm.ResultsModel.prototype.getNumberForType = function ( status ) {

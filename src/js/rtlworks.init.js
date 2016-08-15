@@ -36,7 +36,7 @@
 				rtlworks.network.runTests( url, 'all' )
 					.then( function ( results ) {
 						// Show result
-						var model = new rtlworks.dm.ResultsModel( results ),
+						var model = new rtlworks.dm.ResultsModel( results, { baseUrl: RTLWORKS_BASE_URL } ),
 							panel = new rtlworks.ui.ResultsPanel( model );
 
 						$resultDiv

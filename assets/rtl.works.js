@@ -60,8 +60,10 @@ rtlworks.dm = {};
  * Model storing and analyzing the results
  *
  * @param {Object} results Results object
+ * @param {Object} [config] Configuration object
+ * @cfg {string} [baseUrl=http://rtl.works] Base URL
  */
-rtlworks.dm.ResultsModel = function ( results ) {
+rtlworks.dm.ResultsModel = function ( results, config ) {
 	var num, explanations;
 
 	this.tests = results.test_list;
@@ -72,6 +74,10 @@ rtlworks.dm.ResultsModel = function ( results ) {
 		danger: 0
 	};
 	this.probableSiteDir = '';
+
+	// TODO: Figure out the base_url problem so this
+	// can be more generalized
+	this.permalink = 'http://rtl.works/' + '?' + $.param( { url: this.url } );
 
 	this.results = {};
 	// Analysis
@@ -228,6 +234,10 @@ rtlworks.dm.ResultsModel.prototype.getAllResults = function () {
 	return this.results;
 };
 
+rtlworks.dm.ResultsModel.prototype.getPermalink = function () {
+	return this.permalink;
+};
+
 rtlworks.dm.ResultsModel.prototype.getNumberForType = function ( status ) {
 	return this.numbers[ status ];
 };
@@ -353,7 +363,18 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 					$( '<h3>' )
 						.addClass( 'panel-title' )
 						// TODO: Support i18n strings
-						.append( config.title || 'Results for <em>' + this.model.getUrl() + '</em>' )
+						.append(
+							config.title || 'Results for <em>',
+							$( '<a>' )
+								.addClass( 'rtlworks-ui-ResultsPanel-requestedUrl' )
+								.attr( 'href', this.model.getUrl() )
+								.text( this.model.getUrl() ),
+							'</em>',
+							$( '<a>' )
+								.addClass( 'rtlworks-ui-ResultsPanel-permalink' )
+								.attr( 'href', this.model.getPermalink() )
+								.text( '[Permalink]' )
+						)
 				)
 		);
 
@@ -627,7 +648,7 @@ rtlworks.ui.ResultsPanel.prototype.getStringBoolean = function ( condition ) {
 				rtlworks.network.runTests( url, 'all' )
 					.then( function ( results ) {
 						// Show result
-						var model = new rtlworks.dm.ResultsModel( results ),
+						var model = new rtlworks.dm.ResultsModel( results, { baseUrl: RTLWORKS_BASE_URL } ),
 							panel = new rtlworks.ui.ResultsPanel( model );
 
 						$resultDiv

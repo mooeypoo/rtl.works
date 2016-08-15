@@ -33,7 +33,18 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 					$( '<h3>' )
 						.addClass( 'panel-title' )
 						// TODO: Support i18n strings
-						.append( config.title || 'Results for <em>' + this.model.getUrl() + '</em>' )
+						.append(
+							config.title || 'Results for <em>',
+							$( '<a>' )
+								.addClass( 'rtlworks-ui-ResultsPanel-requestedUrl' )
+								.attr( 'href', this.model.getUrl() )
+								.text( this.model.getUrl() ),
+							'</em>',
+							$( '<a>' )
+								.addClass( 'rtlworks-ui-ResultsPanel-permalink' )
+								.attr( 'href', this.model.getPermalink() )
+								.text( '[Permalink]' )
+						)
 				)
 		);
 

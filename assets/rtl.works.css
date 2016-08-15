@@ -24,6 +24,25 @@ body {
 .rtlworks-ui-ResultsPanel .alert {
   margin: 0;
 }
+.rtlworks-ui-ResultsPanel-permalink {
+  display: inline-block;
+  vertical-align: middle;
+  float: right;
+}
+.rtlworks-ui-ResultsPanel-requestedUrl {
+  vertical-align: middle;
+  display: inline-block;
+  max-width: 20em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rtlworks-ui-ResultsPanel .panel-heading a {
+  color: #bbffc7;
+}
+.rtlworks-ui-ResultsPanel-table td {
+  padding: 0.5em;
+}
 .rtlworks-ui-ResultsPanel-table-description-trigger {
   vertical-align: bottom;
 }

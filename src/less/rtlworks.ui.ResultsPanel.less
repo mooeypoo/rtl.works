@@ -14,11 +14,39 @@
 		margin: 0;
 	}
 
-	&-table-description {
-		&-trigger {
-			vertical-align: bottom;
+	&-permalink {
+		display: inline-block;
+		vertical-align: middle;
+		float: right;
+	}
+
+	&-requestedUrl {
+		vertical-align: middle;
+		display: inline-block;
+		max-width: 20em;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.panel-heading {
+		a {
+			color: #bbffc7;
 		}
 	}
+
+	&-table {
+		td {
+			padding: 0.5em;
+		}
+
+		&-description {
+			&-trigger {
+				vertical-align: bottom;
+			}
+		}
+	}
+
 
 	&-body {
 		&-summary,
