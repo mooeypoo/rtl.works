@@ -1,12 +1,15 @@
 ( function ( $ ) {
 	'use strict';
 	$( document ).ready( function () {
-		var $button = $( '#rtlworks-analyze-button' ),
+		var $share,
+			$button = $( '#rtlworks-analyze-button' ),
 			$input = $( '#rtlworks-url-input' ),
 			$resultDiv = $( '#rtlworks-result' ),
+			$sharingDiv = $( '#rtlworks-sharing' ),
 			$loading = $( '#rtlworks-loading' )
 				.addClass( 'rtlworks-spinner' )
 				.hide(),
+			sharingPanel = new rtlworks.ui.SharingPanel(),
 			runAnalysis = function runAnalysis () {
 				var url = $input.val();
 
@@ -40,6 +43,7 @@
 							.append( panel.$element )
 							.slideDown();
 
+						$sharingDiv.show();
 						$loading.hide();
 					} )
 					.fail( function () {
@@ -61,6 +65,11 @@
 
 				return false;
 			};
+
+		$sharingDiv
+			.append( sharingPanel.$element )
+			.hide();
+		sharingPanel.init();
 
 		if ( RTLWORKS_REQUESTED_URL ) {
 			// Place the URL in the input box and activate

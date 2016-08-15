@@ -9,6 +9,9 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
+#rtlworks-sharing {
+  text-align: center;
+}
 .rtlworks-ui-ResultsPanel-table,
 .rtlworks-ui-ResultsPanel-body {
   color: #666;
@@ -47,4 +50,11 @@ body {
 }
 .rtlworks-ui-ResultsPanel-body-summary p {
   font-weight: normal;
+}
+.rtlworks-ui-sharingPanel-buttons,
+.rtlworks-ui-sharingPanel-intro {
+  display: inline-block;
+}
+.rtlworks-ui-sharingPanel-intro {
+  margin-right: 1em;
 }

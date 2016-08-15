@@ -12,5 +12,4 @@ echo $twig->render( 'test.html', array(
 	'baseurl' => $baseurl,
 	'requested_url' => $requested_url,
 	'menu' => $menuItems,
-	'scripts' => array( 'assets/rtl.works.js' ),
 ) );
