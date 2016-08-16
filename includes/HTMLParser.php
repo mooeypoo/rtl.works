@@ -22,7 +22,7 @@ class HTMLParser {
 	 * Look for stylesheets and collect their URLs
 	 * for fetching.
 	 *
-	 * @param [type] $parsedUrl Parsed URL pieces
+	 * @param array $parsedUrl Parsed URL pieces
 	 *  of the overall site
 	 * @return [type] An array of urls for the
 	 *  stylesheets
@@ -35,27 +35,53 @@ class HTMLParser {
 		foreach ( $linkNodes as $node ) {
 			$href = htmlspecialchars_decode( $node->getAttribute( 'href' ) );
 
-			// Normalize urls.
-			// Adapted from http://stackoverflow.com/questions/14258708/how-to-get-contents-of-page-stylesheets-using-php-dom/14258882#14258882
-			if ( substr( $href, 0, 4) === 'http' ) {
-				// Good as-is
-				$link = $href;
-			} else if ( substr( $href, 0, 1 ) === '/' ) {
-				$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . $href;
-			} else {
-				$link = $parsedUrl[ 'scheme' ] . '://' .
-					$parsedUrl[ 'host' ] . '/' .
-					(
-						( isset( $parsedUrl[ 'path' ] ) && !empty( $parsedUrl[ 'path' ] ) ) ?
-							$parsedUrl[ 'path' ] . '/' : ''
-					) .
-					$href;
-			}
-
-			$cssurls[] = $link;
+			$cssurls[] = self::normalizeUrl( $parsedUrl, $href );
 		}
 
 		return $cssurls;
+	}
+
+	/**
+	 * Return a normalized URL
+	 *
+	 * @param array $parsedUrl Parsed URL pieces
+	 * @param string $link Original link to normalize
+	 * @return string Normalized link
+	 */
+	public static function normalizeUrl( $parsedUrl, $link ) {
+		// Normalize urls.
+		// Adapted from http://stackoverflow.com/questions/14258708/how-to-get-contents-of-page-stylesheets-using-php-dom/14258882#14258882
+		if ( substr( $link, 0, 4) === 'http' ) {
+			// Good as-is
+			$link = $link;
+		} else if ( substr( $link, 0, 1 ) === '/' ) {
+			$link = $parsedUrl[ 'scheme' ] . '://' . $parsedUrl[ 'host' ] . self::getUrlPath( $parsedUrl, true ) . $link;
+		} else {
+			$path = self::getUrlPath( $parsedUrl );
+			$link = $parsedUrl[ 'scheme' ] . '://' .
+				$parsedUrl[ 'host' ] . ( substr( $path, 0, 1 ) == '/' ? '' : '/' ) .
+				self::getUrlPath( $parsedUrl ) .
+				$link;
+		}
+		return $link;
+	}
+
+	/**
+	 * Get a normalized path piece of a URL.
+	 *
+	 * @param array $parsedUrl Parsed URL pieces
+	 * @param boolean $removeTrailingSlash Remove trailing slashes
+	 * @return string Normalized path
+	 */
+	private static function getUrlPath ( $parsedUrl, $removeTrailingSlash = false ) {
+		$path = isset( $parsedUrl[ 'path' ] ) && !empty( $parsedUrl[ 'path' ] ) && $parsedUrl[ 'path' ] !== '/' ?
+				$parsedUrl[ 'path' ] : '';
+
+		if ( $removeTrailingSlash && substr( $path, strlen( $path ) - 1 ) == '/' ) {
+			$path = substr( $path, 0, strlen( $path ) - 1 );
+			echo "cut path\n";
+		}
+		return $path;
 	}
 
 	/**
