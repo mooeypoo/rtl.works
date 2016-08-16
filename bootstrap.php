@@ -7,7 +7,12 @@ $twig = new Twig_Environment( $twigLoader, array(
     'cache' => __DIR__ . '/cache',
 ) );
 
-$baseurl = $currentPage === 'test' ? $_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] );
+$baseurl = '';
+if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+	$baseurl = isset( $currentPage ) && $currentPage === 'test' ?
+		$_SERVER['REQUEST_URI'] : dirname( $_SERVER['REQUEST_URI'] );
+}
+
 if ( strpos( $baseurl, '/' ) !== strlen( $baseurl ) - 1 ) {
 	// HACK: Add trailing slash only if one doesn't exist.
 	$baseurl .= '/';

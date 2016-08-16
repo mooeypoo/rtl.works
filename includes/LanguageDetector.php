@@ -63,9 +63,12 @@ class LanguageDetector {
 				)
 			) {
 
-			    $offset[ $dir ] = $match[ $dir ][0][1] +
-					strlen( $match[ $dir ][0][0] );
-				$count[ $dir ] = $count[ $dir ] + strlen( $match[ $dir ][0][0] );
+
+			    $offset[ $dir ] = $match[ $dir ][0][1] + strlen( $match[ $dir ][0][0]);
+
+				// We should count the length of actual characters rather
+				// than bytes (which is what strlen is counting)
+				$count[ $dir ] = $count[ $dir ] + mb_strlen( $match[ $dir ][0][0] );
 			}
 		}
 
