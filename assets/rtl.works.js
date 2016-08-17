@@ -472,7 +472,7 @@ rtlworks.ui.ResultsPanel = function ( model, config ) {
 				$result.append(
 					$( '<p>' ).append(
 						$( '<strong>' ).append( 'WATCH OUT: Website content is mixed</strong><br />' ),
-						$( '<small>' ).append( 'Make sure to properly isolate or embed.' )
+						$( '<strong>' ).append( 'Make sure to properly isolate or embed.' )
 					),
 					$( '<ul>' ).append(
 						$( '<li>' ).text( test.results.ltr + ' characters in LTR' ),
@@ -522,11 +522,11 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 	} else if ( status === 'success' ) {
 		icon = 'ok';
 	} else if ( status === 'danger' ) {
-		icon = 'fire';
+		icon = 'eye-open';
 	}
 
 	$tr = $( '<tr>' )
-				.addClass( 'alert-' + status )
+				.addClass( status === 'warning' ? '' : 'alert-' + status )
 				.addClass( 'rtlworks-ui-resultsPanel-table-result' )
 				.append(
 					// Icon
