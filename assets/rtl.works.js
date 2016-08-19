@@ -134,7 +134,7 @@ rtlworks.dm.ResultsModel = function ( results, config ) {
 			// Name
 			'char_dir_dist',
 			// Status type
-			'danger',
+			'warning',
 			// Status
 			(
 				// This test passes if there are only characters in one direction
@@ -526,7 +526,7 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 	}
 
 	$tr = $( '<tr>' )
-				.addClass( status === 'warning' ? '' : 'alert-' + status )
+				.addClass( 'alert-' + status )
 				.addClass( 'rtlworks-ui-resultsPanel-table-result' )
 				.append(
 					// Icon
@@ -556,14 +556,15 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 			.addClass( 'rtlworks-ui-resultsPanel-table-description-trigger' )
 			.append(
 				$( '<span>' )
-					.addClass( 'glyphicon glyphicon-question-sign' )
+					.addClass( 'glyphicon glyphicon-chevron-up' )
 					.data( 'name', name )
-					.data( 'open', false )
+					.data( 'open', true )
 					.on( 'click', function () {
-						var name = $( this ).data( 'name' )
+						var name = $( this ).data( 'name' ),
 							isOpen = !!$( this ).data( 'open' ),
 							$row = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-row' ),
-							$content = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-content' );
+							$content = $( '.rtlworks-ui-resultsPanel-table-description-' + name + '-content' ),
+							$this = $( this );
 
 						$( this ).data( 'open', !isOpen );
 
@@ -571,10 +572,15 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 							$content
 								.slideUp( 400, null, function () {
 									$row.hide();
+									$this.removeClass( 'glyphicon-chevron-up' );
+									$this.addClass( 'glyphicon-chevron-down' );
 								} );
 						} else {
 							$row.show();
-							$content.slideDown();
+							$content.slideDown( 400, null, function () {
+								$this.addClass( 'glyphicon-chevron-up' );
+								$this.removeClass( 'glyphicon-chevron-down' );
+							} );
 						}
 					} )
 			);
@@ -592,10 +598,8 @@ rtlworks.ui.ResultsPanel.prototype.getTableRow = function ( $table, name, status
 								$( '<div>' )
 									.addClass( 'rtlworks-ui-resultsPanel-table-description-' + name + '-content' )
 									.append( messages.description )
-									.hide()
 							)
 					)
-					.hide()
 			);
 	}
 };
