@@ -76,7 +76,7 @@ rtlworks.dm.ResultsModel = function ( results, config ) {
 			// Name
 			'char_dir_dist',
 			// Status type
-			'danger',
+			'warning',
 			// Status
 			(
 				// This test passes if there are only characters in one direction
